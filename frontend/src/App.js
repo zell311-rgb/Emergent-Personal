@@ -223,8 +223,6 @@ export default function App() {
     }
   }, [trip?.start_date]);
 
-  async function saveCheckIn() {
-
   async function unlock() {
     setErr('');
     setAuthBusy(true);
@@ -249,6 +247,7 @@ export default function App() {
     }
   }
 
+  async function saveCheckIn() {
     setErr('');
     try {
       const saved = await upsertCheckIn({
