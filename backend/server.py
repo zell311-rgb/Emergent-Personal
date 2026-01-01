@@ -573,9 +573,18 @@ async def get_trip() -> TripState:
     doc = await mongo_db.trip.find_one({"_id": "default"})
     if not doc:
         raise HTTPException(status_code=500, detail="Trip state missing")
+
+    start_date = doc.get("start_date", "")
+    end_date = doc.get("end_date", "")
+
+    # Back-compat: if only legacy `dates` exists, keep returning it
+    legacy_dates = doc.get("dates", "")
+
     return TripState(
         id=doc["_id"],
-        dates=doc.get("dates", ""),
+        start_date=start_date,
+        end_date=end_date,
+        dates=legacy_dates,
         adults_only=bool(doc.get("adults_only", True)),
         lodging_booked=bool(doc.get("lodging_booked", False)),
         childcare_confirmed=bool(doc.get("childcare_confirmed", False)),
