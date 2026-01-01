@@ -196,8 +196,14 @@ export default function App() {
       setTripHistory(th);
       setGifts(gs);
       setSettings(st);
+      setAuthRequired(false);
     } catch (e) {
-      setErr(e?.response?.data?.detail || e.message || 'Failed to load');
+      const detail = e?.response?.data?.detail || e.message || 'Failed to load';
+      if (e?.response?.status === 401) {
+        setAuthRequired(true);
+      } else {
+        setErr(detail);
+      }
     } finally {
       setLoading(false);
     }
