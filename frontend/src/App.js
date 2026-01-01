@@ -376,12 +376,12 @@ export default function App() {
         </div>
 
         <div style={{ marginTop: 14 }} className="tabs" data-testid="nav-tabs">
-          <button className="tab" data-testid="tab-dashboard" aria-selected={active === 'dashboard'} onClick={() => setActive('dashboard')}>Dashboard</button>
-          <button className="tab" data-testid="tab-checkin" aria-selected={active === 'checkin'} onClick={() => setActive('checkin')}>Daily Check-in</button>
-          <button className="tab" data-testid="tab-fitness" aria-selected={active === 'fitness'} onClick={() => setActive('fitness')}>Fitness</button>
-          <button className="tab" data-testid="tab-mortgage" aria-selected={active === 'mortgage'} onClick={() => setActive('mortgage')}>Mortgage</button>
-          <button className="tab" data-testid="tab-relationship" aria-selected={active === 'relationship'} onClick={() => setActive('relationship')}>Relationship</button>
-          <button className="tab" data-testid="tab-settings" aria-selected={active === 'settings'} onClick={() => setActive('settings')}>Settings</button>
+          <button className="tab" data-testid="tab-dashboard" aria-pressed={active === 'dashboard'} onClick={() => setActive('dashboard')}>Dashboard</button>
+          <button className="tab" data-testid="tab-checkin" aria-pressed={active === 'checkin'} onClick={() => setActive('checkin')}>Daily Check-in</button>
+          <button className="tab" data-testid="tab-fitness" aria-pressed={active === 'fitness'} onClick={() => setActive('fitness')}>Fitness</button>
+          <button className="tab" data-testid="tab-mortgage" aria-pressed={active === 'mortgage'} onClick={() => setActive('mortgage')}>Mortgage</button>
+          <button className="tab" data-testid="tab-relationship" aria-pressed={active === 'relationship'} onClick={() => setActive('relationship')}>Relationship</button>
+          <button className="tab" data-testid="tab-settings" aria-pressed={active === 'settings'} onClick={() => setActive('settings')}>Settings</button>
         </div>
 
         {err ? (
