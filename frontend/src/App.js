@@ -447,6 +447,55 @@ export default function App() {
     );
   }
 
+  if (authRequired) {
+    return (
+      <div className="app-shell" data-testid="auth-gate">
+        <div className="container">
+          <div className="glass card" data-testid="auth-card" style={{ maxWidth: 520, margin: '60px auto' }}>
+            <h1 className="h1" data-testid="auth-title">Enter password</h1>
+            <p className="muted" data-testid="auth-subtitle">This tracker is private. Enter the site password to continue.</p>
+
+            {err ? (
+              <div className="glass card" data-testid="auth-error" style={{ marginTop: 12, borderColor: 'rgba(255,86,105,0.35)', background: 'rgba(255,86,105,0.10)' }}>
+                {err}
+              </div>
+            ) : null}
+
+            <div style={{ marginTop: 12 }} data-testid="auth-form">
+              <label className="label">Password</label>
+              <input
+                className="input"
+                data-testid="auth-password-input"
+                type="password"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                placeholder="••••••••"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') unlock();
+                }}
+              />
+
+              <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>
+                <button className="btn primary" data-testid="auth-submit-button" onClick={unlock} disabled={authBusy || !authPassword}>
+                  {authBusy ? 'Unlocking…' : 'Unlock'}
+                </button>
+                <button className="btn" data-testid="auth-clear-button" onClick={() => {
+                  window.localStorage.removeItem('app_password');
+                  setAuthPassword('');
+                  setErr('');
+                }}>Clear</button>
+              </div>
+
+              <div className="muted" style={{ marginTop: 10, fontSize: 12 }} data-testid="auth-hint">
+                Tip: This password is stored only in your browser’s local storage.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="app-shell" data-testid="app-root">
       <header className="container" style={{ paddingBottom: 0 }}>
