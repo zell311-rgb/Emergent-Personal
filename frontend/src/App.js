@@ -34,6 +34,7 @@ import {
   uploadPhoto,
   upsertCheckIn,
   adminReset,
+  authLogin,
 } from './api';
 
 function isoToday() {
@@ -101,6 +102,10 @@ export default function App() {
 
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
+
+  const [authRequired, setAuthRequired] = useState(false);
+  const [authPassword, setAuthPassword] = useState('');
+  const [authBusy, setAuthBusy] = useState(false);
 
   const [summary, setSummary] = useState(null);
   const [weekly, setWeekly] = useState(null);
