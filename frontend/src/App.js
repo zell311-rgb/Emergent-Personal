@@ -806,9 +806,19 @@ export default function App() {
                     <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>Recent photos</div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                       {fitness.photos.slice(0, 6).map((p) => (
-                        <a key={p.id} href={`${backendOrigin()}${p.url}`} target="_blank" rel="noreferrer" data-testid={`photo-link-${p.id}`}>
+                        <a
+                          key={p.id}
+                          href={`${backendOrigin()}${p.url}?password=${encodeURIComponent(window.localStorage.getItem('app_password') || '')}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          data-testid={`photo-link-${p.id}`}
+                        >
                           <div className="glass" style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.10)' }}>
-                            <img alt="progress" src={`${backendOrigin()}${p.url}`} style={{ width: '100%', height: 90, objectFit: 'cover', display: 'block' }} />
+                            <img
+                              alt="progress"
+                              src={`${backendOrigin()}${p.url}?password=${encodeURIComponent(window.localStorage.getItem('app_password') || '')}`}
+                              style={{ width: '100%', height: 90, objectFit: 'cover', display: 'block' }}
+                            />
                           </div>
                         </a>
                       ))}
