@@ -4,6 +4,7 @@ Backend API Testing for 2026 Accountability Tracker
 Tests all endpoints with comprehensive coverage
 """
 
+import os
 import requests
 import sys
 import json
@@ -11,8 +12,9 @@ from datetime import datetime, date, timedelta
 from typing import Dict, Any, Optional
 
 class AccountabilityAPITester:
-    def __init__(self, base_url: str = "https://41c24549-50e4-4256-b94c-7237bc9f4e10.preview.emergentagent.com"):
-        self.base_url = base_url
+    def __init__(self, base_url: Optional[str] = None):
+        # Prefer APP_URL (same env var used by supervisor) so this script works across environments.
+        self.base_url = base_url or os.environ.get("APP_URL") or "http://localhost:8001"
         self.tests_run = 0
         self.tests_passed = 0
         self.failed_tests = []

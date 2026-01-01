@@ -101,6 +101,7 @@ export default function App() {
   const [checkWorkout, setCheckWorkout] = useState(false);
   const [checkVideo, setCheckVideo] = useState(false);
   const [checkNotes, setCheckNotes] = useState('');
+  const [recentCheckins, setRecentCheckins] = useState([]);
 
   const [fitnessRangeStart, setFitnessRangeStart] = useState(addDays(isoToday(), -90));
   const [fitnessRangeEnd, setFitnessRangeEnd] = useState(isoToday());
