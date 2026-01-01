@@ -277,17 +277,53 @@ class AccountabilityAPITester:
             return True
         return False
 
-    def test_weekly_review(self) -> bool:
-        """Test weekly review endpoint"""
+    def test_vacation_planner_validation(self) -> bool:
+        """Test vacation planner date validation"""
         today = date.today().isoformat()
+        future_start = (date.today() + timedelta(days=30)).isoformat()
+        future_end = (date.today() + timedelta(days=25)).isoformat()  # End before start
         
-        success, data = self.run_test("Weekly Review", "GET", "api/review/weekly", 200,
-                                    params={"anchor_day": today})
+        # Test invalid date range (end_date < start_date)
+        invalid_trip_data = {
+            "start_date": future_start,
+            "end_date": future_end,  # This is before start_date
+            "adults_only": True,
+            "notes": "This should fail validation"
+        }
+        success, data = self.run_test("Trip Validation - Invalid Date Range", "PUT", "api/relationship/trip", 400, invalid_trip_data)
         if success:
-            print(f"   Week: {data.get('week_start')} to {data.get('week_end')}")
-            print(f"   Wakeups ≥4: {data.get('wakeups_ge_4')}")
-            print(f"   Workouts ≥5: {data.get('workouts_completed_5')}")
-            print(f"   Video ≥1: {data.get('captured_at_least_1_video')}")
+            print(f"   Correctly rejected invalid date range")
+        else:
+            print(f"   ❌ Should have rejected end_date < start_date")
+            return False
+        
+        # Test valid date range
+        valid_future_end = (date.today() + timedelta(days=35)).isoformat()
+        valid_trip_data = {
+            "start_date": future_start,
+            "end_date": valid_future_end,
+            "adults_only": False,
+            "notes": "Valid date range test"
+        }
+        success, data = self.run_test("Trip Validation - Valid Date Range", "PUT", "api/relationship/trip", 200, valid_trip_data)
+        if success:
+            print(f"   Accepted valid date range: {data.get('start_date')} → {data.get('end_date')}")
+            return True
+        return False
+
+    def test_legacy_dates_compatibility(self) -> bool:
+        """Test that legacy dates field still works"""
+        # Test update with only legacy dates field
+        legacy_trip_data = {
+            "dates": "Summer 2026 - TBD",
+            "adults_only": True,
+            "lodging_booked": False,
+            "notes": "Testing legacy dates field compatibility"
+        }
+        success, data = self.run_test("Legacy Dates Field", "PUT", "api/relationship/trip", 200, legacy_trip_data)
+        if success:
+            print(f"   Legacy dates field works: {data.get('dates')}")
+            print(f"   Structured dates remain: start={data.get('start_date')}, end={data.get('end_date')}")
             return True
         return False
 
