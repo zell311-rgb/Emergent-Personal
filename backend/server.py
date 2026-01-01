@@ -648,13 +648,13 @@ async def mortgage_summary() -> Dict[str, Any]:
     principal_paid_extra_month = float(month_payments[0]["sum"]) if month_payments else 0.0
 
     return {
-        "mortgage_start_principal": MORTGAGE_START_PRINCIPAL,
-        "mortgage_target_principal": MORTGAGE_TARGET_PRINCIPAL,
+        "mortgage_start_principal": mortgage_start_principal,
+        "mortgage_target_principal": mortgage_target_principal,
         "latest_principal_balance": latest_principal_balance,
         "principal_paid_extra_ytd": principal_paid_extra_ytd,
         "principal_paid_extra_month": principal_paid_extra_month,
         "progress": {
-            "target_delta": MORTGAGE_START_PRINCIPAL - MORTGAGE_TARGET_PRINCIPAL,
+            "target_delta": mortgage_start_principal - mortgage_target_principal,
             "paid_extra_ytd": principal_paid_extra_ytd,
         },
     }
