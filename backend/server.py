@@ -297,6 +297,10 @@ async def password_gate(request, call_next):
     if not APP_PASSWORD_SHA256:
         return await call_next(request)
 
+    # Let CORS preflight through, otherwise browsers will surface "Network Error".
+    if request.method == "OPTIONS":
+        return await call_next(request)
+
     path = request.url.path
     if not path.startswith("/api"):
         return await call_next(request)
