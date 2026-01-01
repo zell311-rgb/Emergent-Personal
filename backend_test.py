@@ -13,13 +13,14 @@ from typing import Dict, Any, Optional
 
 class AccountabilityAPITester:
     def __init__(self, base_url: Optional[str] = None):
-        # Prefer APP_URL (same env var used by supervisor) so this script works across environments.
-        self.base_url = base_url or os.environ.get("APP_URL") or "http://localhost:8001"
+        # Use REACT_APP_BACKEND_URL for testing to match frontend behavior
+        self.base_url = base_url or os.environ.get("REACT_APP_BACKEND_URL") or "http://localhost:8001"
         self.tests_run = 0
         self.tests_passed = 0
         self.failed_tests = []
         self.session = requests.Session()
         self.session.timeout = 15
+        self.correct_password = "2026letters"  # The actual password
 
     def log_test(self, name: str, success: bool, details: str = ""):
         """Log test result"""
