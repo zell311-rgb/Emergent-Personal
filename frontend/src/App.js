@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
 import {
   ResponsiveContainer,
   LineChart,
@@ -408,12 +407,12 @@ export default function App() {
         </div>
 
         <div style={{ marginTop: 14 }} className="tabs" data-testid="nav-tabs">
-          <button className="tab" data-testid="tab-dashboard" onClick={() => setActive('dashboard')}>Dashboard</button>
-          <button className="tab" data-testid="tab-checkin" onClick={() => setActive('checkin')}>Daily Check-in</button>
-          <button className="tab" data-testid="tab-fitness" onClick={() => setActive('fitness')}>Fitness</button>
-          <button className="tab" data-testid="tab-mortgage" onClick={() => setActive('mortgage')}>Mortgage</button>
-          <button className="tab" data-testid="tab-relationship" onClick={() => setActive('relationship')}>Relationship</button>
-          <button className="tab" data-testid="tab-settings" onClick={() => setActive('settings')}>Settings</button>
+          <button className={`tab ${active === 'dashboard' ? 'active' : ''}`} data-testid="tab-dashboard" onClick={() => setActive('dashboard')}>Dashboard</button>
+          <button className={`tab ${active === 'checkin' ? 'active' : ''}`} data-testid="tab-checkin" onClick={() => setActive('checkin')}>Daily Check-in</button>
+          <button className={`tab ${active === 'fitness' ? 'active' : ''}`} data-testid="tab-fitness" onClick={() => setActive('fitness')}>Fitness</button>
+          <button className={`tab ${active === 'mortgage' ? 'active' : ''}`} data-testid="tab-mortgage" onClick={() => setActive('mortgage')}>Mortgage</button>
+          <button className={`tab ${active === 'relationship' ? 'active' : ''}`} data-testid="tab-relationship" onClick={() => setActive('relationship')}>Relationship</button>
+          <button className={`tab ${active === 'settings' ? 'active' : ''}`} data-testid="tab-settings" onClick={() => setActive('settings')}>Settings</button>
         </div>
 
         {err ? (
@@ -899,20 +898,29 @@ export default function App() {
                     <div className="grid" data-testid="trip-calendar-section">
                       <div className="col-6" data-testid="trip-calendar-card">
                         <div className="muted" style={{ fontSize: 12, marginBottom: 8 }} data-testid="trip-calendar-title">Calendar view</div>
-                        <Calendar
-                          value={tripCalendarCursor}
-                          onChange={(d) => setTripCalendarCursor(d)}
-                          tileClassName={({ date: d }) => {
-                            const sd = parseIsoToDate(trip.start_date);
-                            const ed = parseIsoToDate(trip.end_date);
-                            if (!sd || !ed) return null;
-                            const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-                            const s = new Date(sd.getFullYear(), sd.getMonth(), sd.getDate());
-                            const e = new Date(ed.getFullYear(), ed.getMonth(), ed.getDate());
-                            if (t >= s && t <= e) return 'react-calendar__tile--active';
-                            return null;
-                          }}
-                        />
+                        <div className="calendar-wrap" data-testid="trip-calendar">
+                          <Calendar
+                            value={tripCalendarCursor}
+                            onChange={(d) => setTripCalendarCursor(d)}
+                            tileClassName={({ date: d }) => {
+                              const sd = parseIsoToDate(trip.start_date);
+                              const ed = parseIsoToDate(trip.end_date);
+                              if (!sd || !ed) return null;
+                              const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                              const s = new Date(sd.getFullYear(), sd.getMonth(), sd.getDate());
+                              const e = new Date(ed.getFullYear(), ed.getMonth(), ed.getDate());
+
+                              const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+
+                              if (t >= s && t <= e) {
+                                if (sameDay(t, s)) return 'trip-range-start';
+                                if (sameDay(t, e)) return 'trip-range-end';
+                                return 'trip-range';
+                              }
+                              return null;
+                            }}
+                          />
+                        </div>
                         <div className="muted" style={{ fontSize: 12, marginTop: 8 }} data-testid="trip-calendar-hint">
                           {trip.start_date && trip.end_date ? (
                             <>Selected: {trip.start_date} → {trip.end_date} ({trip.adults_only ? 'Adults-only' : 'Not adults-only'})</>
