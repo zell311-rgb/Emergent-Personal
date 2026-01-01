@@ -610,9 +610,21 @@ async def list_mortgage_events(start: str = Query(...), end: str = Query(...)) -
 
 @app.get("/api/mortgage/summary")
 async def mortgage_summary() -> Dict[str, Any]:
-    # latest balance check
+    settings = await get_settings_doc()
+
+    mortgage_start_principal = float(settings.get("mortgage_start_principal", DEFAULT_MORTGAGE_START_PRINCIPAL))
+    mortgage_target_principal = float(settings.get("mortgage_target_principal", DEFAULT_MORTGAGE_TARGET_PRINCIPAL))
+
+    # Determine current principal:
+    # 1) explicit setting overrides
+    # 2) latest balance check
+    # 3) null
+    explicit_current = settings.get("mortgage_current_principal", None)
+
     latest_bal = await mongo_db.mortgage_events.find({"kind": "balance_check"}).sort("day", -1).limit(1).to_list(length=1)
-    latest_principal_balance = float(latest_bal[0]["amount"]) if latest_bal else None
+    latest_balance_check = float(latest_bal[0]["amount"]) if latest_bal else None
+
+    latest_principal_balance = float(explicit_current) if explicit_current is not None else latest_balance_check
 
     today = date.today()
     y_start = date(today.year, 1, 1)
