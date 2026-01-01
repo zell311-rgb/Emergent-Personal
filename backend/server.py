@@ -72,7 +72,13 @@ class WeightEntryCreate(BaseModel):
     weight_lbs: float
 
 
+class BodyFatEntryCreate(BaseModel):
+    day: str
+    body_fat_pct: float
+
+
 class WaistEntryCreate(BaseModel):
+    # Backwards compatibility (deprecated): old field name
     day: str
     waist_in: float
 
@@ -80,7 +86,7 @@ class WaistEntryCreate(BaseModel):
 class MetricEntry(BaseModel):
     id: str
     day: str
-    kind: Literal["weight", "waist"]
+    kind: Literal["weight", "body_fat", "waist"]
     value: float
     created_at: str
 
@@ -195,7 +201,7 @@ class SummaryResponse(BaseModel):
     week_video_count: int
     # fitness
     latest_weight_lbs: Optional[float] = None
-    latest_waist_in: Optional[float] = None
+    latest_body_fat_pct: Optional[float] = None
     # mortgage
     mortgage_target_principal: float
     mortgage_start_principal: float
@@ -448,14 +454,20 @@ async def add_weight(payload: WeightEntryCreate) -> MetricEntry:
     return MetricEntry(id=doc["_id"], day=doc["day"], kind="weight", value=v, created_at=ts)
 
 
+@app.post("/api/fitness/body-fat", response_model=MetricEntry)
+async def add_body_fat(payload: BodyFatEntryCreate) -> MetricEntry:
+    d = parse_date(payload.day)
+    v = clamp_float(payload.body_fat_pct, 3, 70, "body_fat_pct")
+    ts = now_utc().isoformat()
+    doc = {"_id": new_id(), "day": iso_date(d), "kind": "body_fat", "value": v, "created_at": ts}
+    await mongo_db.metrics.insert_one(doc)
+    return MetricEntry(id=doc["_id"], day=doc["day"], kind="body_fat", value=v, created_at=ts)
+
+
 @app.post("/api/fitness/waist", response_model=MetricEntry)
 async def add_waist(payload: WaistEntryCreate) -> MetricEntry:
-    d = parse_date(payload.day)
-    v = clamp_float(payload.waist_in, 20, 80, "waist_in")
-    ts = now_utc().isoformat()
-    doc = {"_id": new_id(), "day": iso_date(d), "kind": "waist", "value": v, "created_at": ts}
-    await mongo_db.metrics.insert_one(doc)
-    return MetricEntry(id=doc["_id"], day=doc["day"], kind="waist", value=v, created_at=ts)
+    # Deprecated alias for body fat (kept so older clients don’t break)
+    return await add_body_fat(BodyFatEntryCreate(day=payload.day, body_fat_pct=payload.waist_in))
 
 
 @app.post("/api/fitness/photo", response_model=PhotoEntry)
@@ -498,21 +510,25 @@ async def get_fitness_metrics(
 
     metrics: List[Dict[str, Any]] = []
     async for doc in mongo_db.metrics.find({"day": {"$gte": iso_date(ds), "$lte": iso_date(de)}}).sort("day", 1):
-        metrics.append({"id": doc["_id"], "day": doc["day"], "kind": doc["kind"], "value": doc["value"], "created_at": doc["created_at"]})
+        kind = doc.get("kind")
+        # Migrate old kind name in responses
+        if kind == "waist":
+            kind = "body_fat"
+        metrics.append({"id": doc["_id"], "day": doc["day"], "kind": kind, "value": doc["value"], "created_at": doc["created_at"]})
 
     photos: List[Dict[str, Any]] = []
     async for doc in mongo_db.photos.find({"day": {"$gte": iso_date(ds), "$lte": iso_date(de)}}).sort("day", 1):
         photos.append({"id": doc["_id"], "day": doc["day"], "filename": doc["filename"], "url": doc["url"], "created_at": doc["created_at"]})
 
     latest_weight = await mongo_db.metrics.find({"kind": "weight"}).sort("day", -1).limit(1).to_list(length=1)
-    latest_waist = await mongo_db.metrics.find({"kind": "waist"}).sort("day", -1).limit(1).to_list(length=1)
+    latest_bf = await mongo_db.metrics.find({"kind": {"$in": ["body_fat", "waist"]}}).sort("day", -1).limit(1).to_list(length=1)
 
     return {
         "metrics": metrics,
         "photos": photos,
         "latest": {
             "weight_lbs": latest_weight[0]["value"] if latest_weight else None,
-            "waist_in": latest_waist[0]["value"] if latest_waist else None,
+            "body_fat_pct": latest_bf[0]["value"] if latest_bf else None,
         },
     }
 
