@@ -273,6 +273,42 @@ if not MONGO_URL:
 mongo_client: Optional[AsyncIOMotorClient] = None
 mongo_db = None
 
+# -----------------------------
+# Password protection middleware
+# -----------------------------
+
+PUBLIC_PATH_PREFIXES = [
+    "/api/health",
+    "/api/auth/login",
+]
+
+
+def path_is_public(path: str) -> bool:
+    if path.startswith("/api/uploads/"):
+        return True
+    return any(path.startswith(p) for p in PUBLIC_PATH_PREFIXES)
+
+
+@app.middleware("http")
+async def password_gate(request, call_next):
+    # Only protect API routes, so the frontend itself can load and show the unlock screen.
+    if not APP_PASSWORD_SHA256:
+        return await call_next(request)
+
+    path = request.url.path
+    if not path.startswith("/api"):
+        return await call_next(request)
+
+    if path_is_public(path):
+        return await call_next(request)
+
+    pw = request.headers.get("x-app-password", "")
+    if not pw or not verify_password(pw):
+        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+
+    return await call_next(request)
+
+
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
