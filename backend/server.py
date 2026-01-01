@@ -789,8 +789,40 @@ async def list_gifts(year: int = Query(...), month: int = Query(...)) -> List[Gi
 async def get_settings_doc() -> Dict[str, Any]:
     doc = await mongo_db.settings.find_one({"_id": "default"})
     if not doc:
-        await mongo_db.settings.insert_one({"_id": "default", "updated_at": now_utc().isoformat()})
+        await mongo_db.settings.insert_one(
+            {
+                "_id": "default",
+                "mortgage_start_principal": DEFAULT_MORTGAGE_START_PRINCIPAL,
+                "mortgage_target_principal": DEFAULT_MORTGAGE_TARGET_PRINCIPAL,
+                "mortgage_current_principal": None,
+                "updated_at": now_utc().isoformat(),
+            }
+        )
         doc = await mongo_db.settings.find_one({"_id": "default"})
+    else:
+        # Backfill defaults if older doc missing these fields
+        needs_backfill = False
+        if "mortgage_start_principal" not in doc:
+            needs_backfill = True
+        if "mortgage_target_principal" not in doc:
+            needs_backfill = True
+        if "mortgage_current_principal" not in doc:
+            needs_backfill = True
+
+        if needs_backfill:
+            await mongo_db.settings.update_one(
+                {"_id": "default"},
+                {
+                    "$set": {
+                        "mortgage_start_principal": float(doc.get("mortgage_start_principal", DEFAULT_MORTGAGE_START_PRINCIPAL)),
+                        "mortgage_target_principal": float(doc.get("mortgage_target_principal", DEFAULT_MORTGAGE_TARGET_PRINCIPAL)),
+                        "mortgage_current_principal": doc.get("mortgage_current_principal", None),
+                        "updated_at": now_utc().isoformat(),
+                    }
+                },
+            )
+            doc = await mongo_db.settings.find_one({"_id": "default"})
+
     return doc
 
 
