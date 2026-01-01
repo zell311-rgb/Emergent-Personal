@@ -506,6 +506,7 @@ class AccountabilityAPITester:
             "vacation_calendar_features": self.test_vacation_planner_calendar_features(),
             "legacy_compatibility": self.test_legacy_dates_compatibility(),
             "settings": self.test_settings_flow(),
+            "mortgage_settings": self.test_mortgage_settings_flow(),
             "weekly_review": self.test_weekly_review(),
             "admin_reset": self.test_admin_reset_flow()
         }
