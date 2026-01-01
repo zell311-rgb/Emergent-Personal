@@ -224,6 +224,31 @@ export default function App() {
   }, [trip?.start_date]);
 
   async function saveCheckIn() {
+
+  async function unlock() {
+    setErr('');
+    setAuthBusy(true);
+    try {
+      const res = await authLogin(authPassword);
+      if (res?.enabled === false) {
+        // password protection disabled on backend
+        window.localStorage.removeItem('app_password');
+        setAuthRequired(false);
+        await refreshAll();
+        return;
+      }
+      window.localStorage.setItem('app_password', authPassword);
+      setAuthPassword('');
+      setAuthRequired(false);
+      await refreshAll();
+    } catch (e) {
+      setErr(e?.response?.data?.detail || e.message || 'Invalid password');
+      setAuthRequired(true);
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
     setErr('');
     try {
       const saved = await upsertCheckIn({
