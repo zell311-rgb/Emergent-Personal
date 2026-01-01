@@ -341,6 +341,28 @@ class AccountabilityAPITester:
             return True
         return False
 
+    def test_admin_reset_flow(self) -> bool:
+        """Test admin reset endpoint with validation"""
+        # Test with wrong confirmation value
+        success, data = self.run_test("Admin Reset - Wrong Confirm", "POST", "api/admin/reset", 400,
+                                    params={"confirm": "WRONG"})
+        if success:
+            print(f"   Correctly rejected wrong confirm value")
+        else:
+            print(f"   ❌ Should have rejected wrong confirm value")
+            return False
+        
+        # Test with correct confirmation value
+        success, data = self.run_test("Admin Reset - Correct Confirm", "POST", "api/admin/reset", 200,
+                                    params={"confirm": "RESET"})
+        if success:
+            print(f"   Reset successful: {data.get('ok')}")
+            deleted = data.get('deleted', {})
+            print(f"   Deleted collections: {deleted}")
+            print(f"   Note: {data.get('note', '')}")
+            return True
+        return False
+
     def run_all_tests(self) -> Dict[str, Any]:
         """Run all tests and return results"""
         print("🚀 Starting 2026 Accountability Tracker API Tests")
