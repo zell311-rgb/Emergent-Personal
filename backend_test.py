@@ -311,6 +311,22 @@ class AccountabilityAPITester:
             return True
         return False
 
+    def test_legacy_dates_compatibility(self) -> bool:
+        """Test that legacy dates field still works"""
+        # Test update with only legacy dates field
+        legacy_trip_data = {
+            "dates": "Summer 2026 - TBD",
+            "adults_only": True,
+            "lodging_booked": False,
+            "notes": "Testing legacy dates field compatibility"
+        }
+        success, data = self.run_test("Legacy Dates Field", "PUT", "api/relationship/trip", 200, legacy_trip_data)
+        if success:
+            print(f"   Legacy dates field works: {data.get('dates')}")
+            print(f"   Structured dates remain: start={data.get('start_date')}, end={data.get('end_date')}")
+            return True
+        return False
+
     def test_weekly_review(self) -> bool:
         """Test weekly review endpoint"""
         today = date.today().isoformat()
