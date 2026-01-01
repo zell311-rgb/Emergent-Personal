@@ -114,7 +114,13 @@ class MortgageEvent(BaseModel):
 
 
 class TripUpdate(BaseModel):
-    dates: Optional[str] = ""  # freeform
+    # structured dates (preferred)
+    start_date: Optional[str] = ""  # YYYY-MM-DD
+    end_date: Optional[str] = ""  # YYYY-MM-DD
+
+    # legacy/freeform dates (kept for backwards-compat)
+    dates: Optional[str] = ""
+
     adults_only: bool = True
     lodging_booked: bool = False
     childcare_confirmed: bool = False
@@ -123,12 +129,16 @@ class TripUpdate(BaseModel):
 
 class TripState(BaseModel):
     id: str
-    dates: str = ""
-    adults_only: bool
-    lodging_booked: bool
-    childcare_confirmed: bool
+
+    start_date: str = ""
+    end_date: str = ""
+    dates: str = ""  # legacy
+
+    adults_only: bool = True
+    lodging_booked: bool = False
+    childcare_confirmed: bool = False
     notes: str = ""
-    updated_at: str
+    updated_at: str = ""
 
 
 class TripHistoryEntry(BaseModel):
@@ -261,6 +271,8 @@ async def on_startup() -> None:
         {
             "$setOnInsert": {
                 "_id": "default",
+                "start_date": "",
+                "end_date": "",
                 "dates": "",
                 "adults_only": True,
                 "lodging_booked": False,
