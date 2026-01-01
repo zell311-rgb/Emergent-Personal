@@ -307,8 +307,9 @@ export default function App() {
     try {
       const t = await updateTrip(next);
       setTrip(t);
-      const s = await getSummary();
+      const [s, th] = await Promise.all([getSummary(), getTripHistory(25)]);
       setSummary(s);
+      setTripHistory(th);
     } catch (e) {
       setErr(e?.response?.data?.detail || e.message || 'Failed to update trip');
     }
