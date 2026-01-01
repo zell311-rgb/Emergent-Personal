@@ -909,13 +909,13 @@ async def summary() -> SummaryResponse:
         reminders.append({"id": "weight-missing", "area": "Fitness", "message": "No weight logged yet (weekly).", "severity": "info"})
 
     # 2) Waist (every 14 days)
-    last_waist_doc = latest_waist[0] if latest_waist else None
-    if last_waist_doc:
-        last_waist_day = parse_date(last_waist_doc["day"])
-        if (today - last_waist_day).days >= 14:
-            reminders.append({"id": "waist-overdue", "area": "Fitness", "message": "Waist measurement overdue (every 2 weeks).", "severity": "warning"})
+    last_bf_doc = latest_bf[0] if latest_bf else None
+    if last_bf_doc:
+        last_bf_day = parse_date(last_bf_doc["day"])
+        if (today - last_bf_day).days >= 14:
+            reminders.append({"id": "bodyfat-overdue", "area": "Fitness", "message": "Body fat check overdue (every 2 weeks).", "severity": "warning"})
     else:
-        reminders.append({"id": "waist-missing", "area": "Fitness", "message": "No waist measurement logged yet (every 2 weeks).", "severity": "info"})
+        reminders.append({"id": "bodyfat-missing", "area": "Fitness", "message": "No body fat logged yet (every 2 weeks).", "severity": "info"})
 
     # 3) Monthly photo (no photo this month)
     photo_count = await mongo_db.photos.count_documents({"day": {"$gte": iso_date(month_start), "$lte": iso_date(today)}})
