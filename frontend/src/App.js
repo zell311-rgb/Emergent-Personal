@@ -817,12 +817,24 @@ export default function App() {
         {active === 'relationship' ? (
           <div className="grid" data-testid="relationship-view">
             <div className="col-6">
-              <Card title="Adults-only getaway (trip checklist)" testId="trip-card" right={<span className="badge" data-testid="trip-deadline">Due Feb 15 (dates/bookings)</span>}>
+              <Card title="Vacation planner" testId="trip-card" right={<span className="badge" data-testid="trip-deadline">Due Feb 15 (dates/bookings)</span>}>
                 {trip ? (
                   <div data-testid="trip-form">
-                    <Field label="Dates (freeform)" testId="trip-dates-field">
-                      <input className="input" data-testid="trip-dates-input" value={trip.dates || ''} onChange={(e) => setTrip({ ...trip, dates: e.target.value })} placeholder="e.g., Mar 12–15" />
-                    </Field>
+                    <div className="grid">
+                      <div className="col-8">
+                        <Field label="Dates (freeform)" testId="trip-dates-field">
+                          <input className="input" data-testid="trip-dates-input" value={trip.dates || ''} onChange={(e) => setTrip({ ...trip, dates: e.target.value })} placeholder="e.g., Mar 12–15" />
+                        </Field>
+                      </div>
+                      <div className="col-4">
+                        <Field label="Trip type" testId="trip-adults-only-field">
+                          <label className="badge" data-testid="trip-adults-only-toggle" style={{ width: 'fit-content' }}>
+                            <input type="checkbox" checked={!!trip.adults_only} onChange={(e) => setTrip({ ...trip, adults_only: e.target.checked })} style={{ marginRight: 8 }} />
+                            Adults-only
+                          </label>
+                        </Field>
+                      </div>
+                    </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10, marginTop: 10 }}>
                       <label className="badge" data-testid="trip-lodging-toggle">
@@ -841,8 +853,41 @@ export default function App() {
                       </Field>
                     </div>
 
-                    <div style={{ marginTop: 10 }}>
-                      <button className="btn primary" data-testid="trip-save-button" onClick={() => saveTrip(trip)}>Save trip</button>
+                    <div style={{ marginTop: 10, display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <button className="btn primary" data-testid="trip-save-button" onClick={() => saveTrip(trip)}>Save plan</button>
+                      <span className="muted" data-testid="trip-updated-at" style={{ fontSize: 12 }}>Last updated: {trip.updated_at || '—'}</span>
+                    </div>
+
+                    <hr className="sep" />
+
+                    <div data-testid="trip-history">
+                      <div className="muted" style={{ fontSize: 12, marginBottom: 8 }} data-testid="trip-history-title">History (last 25 saves)</div>
+                      {tripHistory.length ? (
+                        <table className="table" data-testid="trip-history-table">
+                          <thead>
+                            <tr>
+                              <th>Saved at</th>
+                              <th>Dates</th>
+                              <th>Adults-only</th>
+                              <th>Lodging</th>
+                              <th>Childcare</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {tripHistory.map((h) => (
+                              <tr key={h.id} data-testid={`trip-history-row-${h.id}`}>
+                                <td className="muted">{h.created_at}</td>
+                                <td>{h.snapshot?.dates || '—'}</td>
+                                <td>{h.snapshot?.adults_only ? 'Yes' : 'No'}</td>
+                                <td>{h.snapshot?.lodging_booked ? '✔' : '✘'}</td>
+                                <td>{h.snapshot?.childcare_confirmed ? '✔' : '✘'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <div className="muted" data-testid="trip-history-empty">No history yet. Saving will create snapshots.</div>
+                      )}
                     </div>
                   </div>
                 ) : (
