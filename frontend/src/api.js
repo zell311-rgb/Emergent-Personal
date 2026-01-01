@@ -83,6 +83,11 @@ export async function getTrip() {
   return data;
 }
 
+export async function getTripHistory(limit = 25) {
+  const { data } = await api.get('/api/relationship/trip/history', { params: { limit } });
+  return data;
+}
+
 export async function updateTrip(payload) {
   const { data } = await api.put('/api/relationship/trip', payload);
   return data;

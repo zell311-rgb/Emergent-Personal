@@ -23,6 +23,7 @@ import {
   getSettings,
   getSummary,
   getTrip,
+  getTripHistory,
   getWeeklyReview,
   listGifts,
   listMortgageEvents,
@@ -126,6 +127,7 @@ export default function App() {
   const [balanceNote, setBalanceNote] = useState('');
 
   const [trip, setTrip] = useState(null);
+  const [tripHistory, setTripHistory] = useState([]);
   const [giftDay, setGiftDay] = useState(isoToday());
   const [giftDesc, setGiftDesc] = useState('');
   const [giftAmt, setGiftAmt] = useState('');
