@@ -291,6 +291,102 @@ class AccountabilityAPITester:
             return True
         return False
 
+    def test_mortgage_settings_flow(self) -> bool:
+        """Test mortgage settings functionality"""
+        print("   Testing mortgage settings...")
+        
+        # Test get settings includes mortgage fields
+        success, data = self.run_test("Get Settings - Mortgage Fields", "GET", "api/settings", 200)
+        if not success:
+            return False
+        
+        # Verify mortgage fields are present
+        required_fields = ['mortgage_start_principal', 'mortgage_target_principal', 'mortgage_current_principal']
+        for field in required_fields:
+            if field not in data:
+                print(f"   ❌ Missing mortgage field: {field}")
+                return False
+        
+        print(f"   ✅ Mortgage start principal: ${data.get('mortgage_start_principal')}")
+        print(f"   ✅ Mortgage target principal: ${data.get('mortgage_target_principal')}")
+        print(f"   ✅ Mortgage current principal: {data.get('mortgage_current_principal')}")
+        
+        # Test update mortgage settings
+        mortgage_settings = {
+            "sendgrid_api_key": data.get("sendgrid_api_key", ""),
+            "sendgrid_sender_email": data.get("sendgrid_sender_email", ""),
+            "reminder_recipient_email": data.get("reminder_recipient_email", ""),
+            "weekly_review_day": data.get("weekly_review_day", "Sun"),
+            "weekly_review_hour_local": data.get("weekly_review_hour_local", 9),
+            "monthly_gift_day": data.get("monthly_gift_day", 1),
+            "email_enabled": data.get("email_enabled", False),
+            "mortgage_start_principal": 350000.0,
+            "mortgage_target_principal": 280000.0,
+            "mortgage_current_principal": 325000.0
+        }
+        
+        success, updated_data = self.run_test("Update Mortgage Settings", "PUT", "api/settings", 200, mortgage_settings)
+        if not success:
+            return False
+        
+        print(f"   ✅ Updated start principal: ${updated_data.get('mortgage_start_principal')}")
+        print(f"   ✅ Updated target principal: ${updated_data.get('mortgage_target_principal')}")
+        print(f"   ✅ Updated current principal: ${updated_data.get('mortgage_current_principal')}")
+        
+        # Test mortgage summary reflects settings
+        success, summary_data = self.run_test("Mortgage Summary - Settings Override", "GET", "api/mortgage/summary", 200)
+        if not success:
+            return False
+        
+        # Verify summary uses settings values
+        if summary_data.get('mortgage_start_principal') != 350000.0:
+            print(f"   ❌ Summary start principal mismatch: expected 350000, got {summary_data.get('mortgage_start_principal')}")
+            return False
+        
+        if summary_data.get('mortgage_target_principal') != 280000.0:
+            print(f"   ❌ Summary target principal mismatch: expected 280000, got {summary_data.get('mortgage_target_principal')}")
+            return False
+        
+        if summary_data.get('latest_principal_balance') != 325000.0:
+            print(f"   ❌ Summary current principal mismatch: expected 325000, got {summary_data.get('latest_principal_balance')}")
+            return False
+        
+        print(f"   ✅ Mortgage summary reflects settings override")
+        
+        # Test fallback to latest balance check when current_principal is null
+        fallback_settings = mortgage_settings.copy()
+        fallback_settings['mortgage_current_principal'] = None
+        
+        success, fallback_data = self.run_test("Update Settings - Null Current Principal", "PUT", "api/settings", 200, fallback_settings)
+        if not success:
+            return False
+        
+        print(f"   ✅ Set current principal to null")
+        
+        # Add a balance check to test fallback
+        today = date.today().isoformat()
+        balance_data = {
+            "day": today,
+            "principal_balance": 327500.0,
+            "note": "Test balance for fallback"
+        }
+        success, balance_result = self.run_test("Add Balance Check for Fallback", "POST", "api/mortgage/balance-check", 200, balance_data)
+        if not success:
+            return False
+        
+        # Test summary uses latest balance check when current_principal is null
+        success, fallback_summary = self.run_test("Mortgage Summary - Fallback to Balance Check", "GET", "api/mortgage/summary", 200)
+        if not success:
+            return False
+        
+        if fallback_summary.get('latest_principal_balance') != 327500.0:
+            print(f"   ❌ Fallback failed: expected 327500, got {fallback_summary.get('latest_principal_balance')}")
+            return False
+        
+        print(f"   ✅ Fallback to latest balance check works: ${fallback_summary.get('latest_principal_balance')}")
+        
+        return True
+
     def test_vacation_planner_calendar_features(self) -> bool:
         """Test vacation planner calendar-specific features for highlighting and month jumping"""
         print("   Testing vacation planner calendar features...")
