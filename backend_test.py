@@ -380,7 +380,8 @@ class AccountabilityAPITester:
             "vacation_validation": self.test_vacation_planner_validation(),
             "legacy_compatibility": self.test_legacy_dates_compatibility(),
             "settings": self.test_settings_flow(),
-            "weekly_review": self.test_weekly_review()
+            "weekly_review": self.test_weekly_review(),
+            "admin_reset": self.test_admin_reset_flow()
         }
         
         print("=" * 60)
