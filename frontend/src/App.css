@@ -160,3 +160,30 @@ hr.sep {
   border-top: 1px solid rgba(255,255,255,0.08);
   margin: 12px 0;
 }
+
+/* react-calendar theming (minimal, executive) */
+.react-calendar {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 10px;
+  color: var(--text);
+}
+
+.react-calendar__navigation button {
+  color: var(--text);
+  border-radius: 10px;
+}
+
+.react-calendar__tile {
+  border-radius: 10px;
+}
+
+.react-calendar__tile--now {
+  background: rgba(64, 221, 153, 0.12);
+}
+
+.react-calendar__tile--active {
+  background: rgba(86, 105, 255, 0.22);
+}
