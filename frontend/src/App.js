@@ -353,6 +353,25 @@ export default function App() {
     }
   }
 
+  async function resetAllData() {
+    setErr('');
+    if (resetConfirm !== 'RESET') {
+      setErr("Type RESET to confirm.");
+      return;
+    }
+    setResetBusy(true);
+    try {
+      await adminReset('RESET');
+      setResetConfirm('');
+      await refreshAll();
+      setActive('dashboard');
+    } catch (e) {
+      setErr(e?.response?.data?.detail || e.message || 'Failed to reset data');
+    } finally {
+      setResetBusy(false);
+    }
+  }
+
   const topKpis = useMemo(() => {
     if (!summary) return [];
     const mortgageRatio = mortgageProgress?.ratio ?? 0;
