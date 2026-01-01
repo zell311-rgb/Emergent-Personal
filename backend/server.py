@@ -256,22 +256,14 @@ app = FastAPI(title=APP_TITLE)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Password protection (single shared password)
 # The password itself is not stored; only SHA256 hash in env.
 APP_PASSWORD_SHA256 = os.environ.get("APP_PASSWORD_SHA256", "").strip()
-
-
-def require_password(password: Optional[str]) -> None:
-    if not APP_PASSWORD_SHA256:
-        return
-    if not password or not verify_password(password):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
 
 MONGO_URL = os.environ.get("MONGO_URL")
 if not MONGO_URL:
@@ -423,8 +415,7 @@ async def admin_reset(confirm: str = Query(..., description="Must be 'RESET'")) 
 # -----------------------------
 
 @app.post("/api/checkins/upsert", response_model=CheckIn)
-async def upsert_checkin(payload: CheckInUpsertRequest, password: Optional[str] = Query(None)) -> CheckIn:
-    require_password(password)
+async def upsert_checkin(payload: CheckInUpsertRequest) -> CheckIn:
     d = parse_date(payload.day)
     ts = now_utc().isoformat()
 
@@ -474,9 +465,7 @@ async def upsert_checkin(payload: CheckInUpsertRequest, password: Optional[str] 
 async def list_checkins(
     start: str = Query(..., description="YYYY-MM-DD"),
     end: str = Query(..., description="YYYY-MM-DD"),
-    password: Optional[str] = Query(None),
 ) -> List[CheckIn]:
-    require_password(password)
     ds = parse_date(start)
     de = parse_date(end)
     if de < ds:
