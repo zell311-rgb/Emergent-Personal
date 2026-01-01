@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Literal, Optional, Tuple
 
 from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, File, HTTPException, Query, UploadFile
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -179,6 +178,11 @@ class SettingsUpdate(BaseModel):
     monthly_gift_day: int = 1
     email_enabled: bool = False
 
+    # mortgage settings
+    mortgage_start_principal: float = 330000.0
+    mortgage_target_principal: float = 299999.0
+    mortgage_current_principal: Optional[float] = None
+
 
 class SettingsResponse(BaseModel):
     id: str
@@ -188,6 +192,11 @@ class SettingsResponse(BaseModel):
     weekly_review_hour_local: int
     monthly_gift_day: int
     email_enabled: bool
+
+    mortgage_start_principal: float
+    mortgage_target_principal: float
+    mortgage_current_principal: Optional[float] = None
+
     updated_at: str
 
 
@@ -254,9 +263,9 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # Serve uploaded progress photos
 app.mount("/api/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-# Locked plan constants
-MORTGAGE_START_PRINCIPAL = 330000.0
-MORTGAGE_TARGET_PRINCIPAL = 299999.0
+# Defaults (can be overridden in Settings)
+DEFAULT_MORTGAGE_START_PRINCIPAL = 330000.0
+DEFAULT_MORTGAGE_TARGET_PRINCIPAL = 299999.0
 
 
 @app.on_event("startup")
