@@ -130,6 +130,7 @@ export default function App() {
 
   const [trip, setTrip] = useState(null);
   const [tripHistory, setTripHistory] = useState([]);
+  const [tripCalendarCursor, setTripCalendarCursor] = useState(new Date());
   const [giftDay, setGiftDay] = useState(isoToday());
   const [giftDesc, setGiftDesc] = useState('');
   const [giftAmt, setGiftAmt] = useState('');
