@@ -158,6 +158,27 @@ class AccountabilityAPITester:
         
         print(f"   ✅ All major endpoints work with password authentication")
         return True
+
+    def test_health(self) -> bool:
+        """Test health endpoint"""
+        success, data = self.run_test("Health Check", "GET", "api/health", 200)
+        if success and data.get("status") == "ok":
+            print(f"   Health status: {data.get('status')}, App: {data.get('app')}")
+            return True
+        return False
+
+    def test_summary(self) -> bool:
+        """Test summary endpoint"""
+        success, data = self.run_test("Dashboard Summary", "GET", "api/summary", 200)
+        if success:
+            print(f"   Today: {data.get('today')}")
+            print(f"   Wakeup streak: {data.get('current_wakeup_streak')}")
+            print(f"   Workout streak: {data.get('current_workout_streak')}")
+            print(f"   Latest weight: {data.get('latest_weight_lbs')}")
+            print(f"   Latest body fat: {data.get('latest_body_fat_pct')}")
+            print(f"   Reminders: {len(data.get('reminders', []))}")
+            return True
+        return False
         """Test health endpoint"""
         success, data = self.run_test("Health Check", "GET", "api/health", 200)
         if success and data.get("status") == "ok":
