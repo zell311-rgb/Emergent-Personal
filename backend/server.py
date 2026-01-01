@@ -313,7 +313,14 @@ async def password_gate(request, call_next):
 
     pw = request.headers.get("x-app-password", "")
     if not pw or not verify_password(pw):
-        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+        resp = JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+        # Ensure browser can read the 401 (CORS)
+        origin = request.headers.get("origin", "*")
+        resp.headers["Access-Control-Allow-Origin"] = origin
+        resp.headers["Access-Control-Allow-Credentials"] = "true"
+        resp.headers["Access-Control-Allow-Headers"] = "*"
+        resp.headers["Vary"] = "Origin"
+        return resp
 
     return await call_next(request)
 
