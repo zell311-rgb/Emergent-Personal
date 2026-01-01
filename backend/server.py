@@ -474,7 +474,9 @@ async def upsert_checkin(payload: CheckInUpsertRequest, password: Optional[str] 
 async def list_checkins(
     start: str = Query(..., description="YYYY-MM-DD"),
     end: str = Query(..., description="YYYY-MM-DD"),
+    password: Optional[str] = Query(None),
 ) -> List[CheckIn]:
+    require_password(password)
     ds = parse_date(start)
     de = parse_date(end)
     if de < ds:
