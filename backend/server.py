@@ -837,6 +837,9 @@ async def get_settings() -> SettingsResponse:
         weekly_review_hour_local=int(doc.get("weekly_review_hour_local", 9)),
         monthly_gift_day=int(doc.get("monthly_gift_day", 1)),
         email_enabled=bool(doc.get("email_enabled", False)),
+        mortgage_start_principal=float(doc.get("mortgage_start_principal", DEFAULT_MORTGAGE_START_PRINCIPAL)),
+        mortgage_target_principal=float(doc.get("mortgage_target_principal", DEFAULT_MORTGAGE_TARGET_PRINCIPAL)),
+        mortgage_current_principal=(float(doc.get("mortgage_current_principal")) if doc.get("mortgage_current_principal") is not None else None),
         updated_at=doc.get("updated_at", ""),
     )
 
