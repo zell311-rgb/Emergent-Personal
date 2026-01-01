@@ -587,21 +587,34 @@ class AccountabilityAPITester:
         print(f"Testing against: {self.base_url}")
         print("=" * 60)
         
-        # Test each component
+        # Test password protection first (critical for security)
         test_results = {
-            "health": self.test_health(),
-            "summary": self.test_summary(),
-            "checkin": self.test_checkin_flow(),
-            "fitness": self.test_fitness_flow(),
-            "mortgage": self.test_mortgage_flow(),
-            "relationship": self.test_relationship_flow(),
-            "vacation_calendar_features": self.test_vacation_planner_calendar_features(),
-            "legacy_compatibility": self.test_legacy_dates_compatibility(),
-            "settings": self.test_settings_flow(),
-            "mortgage_settings": self.test_mortgage_settings_flow(),
-            "weekly_review": self.test_weekly_review(),
-            "admin_reset": self.test_admin_reset_flow()
+            "password_protection": self.test_password_protection(),
+            "password_integration": self.test_password_integration_flow(),
         }
+        
+        # If password protection is working, continue with other tests
+        if test_results["password_protection"] and test_results["password_integration"]:
+            # Set password header for all subsequent tests
+            self.session.headers.update({"x-app-password": self.correct_password})
+            
+            # Test each component
+            test_results.update({
+                "health": self.test_health(),
+                "summary": self.test_summary(),
+                "checkin": self.test_checkin_flow(),
+                "fitness": self.test_fitness_flow(),
+                "mortgage": self.test_mortgage_flow(),
+                "relationship": self.test_relationship_flow(),
+                "vacation_calendar_features": self.test_vacation_planner_calendar_features(),
+                "legacy_compatibility": self.test_legacy_dates_compatibility(),
+                "settings": self.test_settings_flow(),
+                "mortgage_settings": self.test_mortgage_settings_flow(),
+                "weekly_review": self.test_weekly_review(),
+                "admin_reset": self.test_admin_reset_flow()
+            })
+        else:
+            print("❌ Password protection tests failed - skipping other tests")
         
         print("=" * 60)
         print(f"📊 Test Results: {self.tests_passed}/{self.tests_run} passed")
