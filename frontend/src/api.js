@@ -14,6 +14,15 @@ export const api = axios.create({
   timeout: 15000,
 });
 
+api.interceptors.request.use((config) => {
+  const pw = window.localStorage.getItem('app_password') || '';
+  if (pw) {
+    config.headers = config.headers || {};
+    config.headers['x-app-password'] = pw;
+  }
+  return config;
+});
+
 export function backendOrigin() {
   return baseURL;
 }
