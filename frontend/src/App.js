@@ -137,6 +137,7 @@ export default function App() {
   const [trip, setTrip] = useState(null);
   const [tripHistory, setTripHistory] = useState([]);
   const [tripCalendarCursor, setTripCalendarCursor] = useState(new Date());
+  const [tripCalendarActiveStartDate, setTripCalendarActiveStartDate] = useState(new Date());
   const [giftDay, setGiftDay] = useState(isoToday());
   const [giftDesc, setGiftDesc] = useState('');
   const [giftAmt, setGiftAmt] = useState('');
@@ -201,6 +202,15 @@ export default function App() {
     refreshAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // When a trip has a start date, show the calendar on that month so range highlighting is visible.
+  useEffect(() => {
+    const sd = parseIsoToDate(trip?.start_date);
+    if (sd) {
+      setTripCalendarCursor(sd);
+      setTripCalendarActiveStartDate(sd);
+    }
+  }, [trip?.start_date]);
 
   async function saveCheckIn() {
     setErr('');
