@@ -43,6 +43,18 @@ def clamp_float(v: float, min_v: float, max_v: float, label: str) -> float:
     return v
 
 
+import hashlib
+
+
+def verify_password(pw: str) -> bool:
+    expected = os.environ.get("APP_PASSWORD_SHA256", "").strip()
+    if not expected:
+        # If not configured, do not block.
+        return True
+    hashed = hashlib.sha256(pw.encode("utf-8")).hexdigest()
+    return hashed == expected
+
+
 # -----------------------------
 # Models
 # -----------------------------
