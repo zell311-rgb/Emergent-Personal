@@ -896,34 +896,66 @@ export default function App() {
 
                     <hr className="sep" />
 
-                    <div data-testid="trip-history">
-                      <div className="muted" style={{ fontSize: 12, marginBottom: 8 }} data-testid="trip-history-title">History (last 25 saves)</div>
-                      {tripHistory.length ? (
-                        <table className="table" data-testid="trip-history-table">
-                          <thead>
-                            <tr>
-                              <th>Saved at</th>
-                              <th>Dates</th>
-                              <th>Adults-only</th>
-                              <th>Lodging</th>
-                              <th>Childcare</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {tripHistory.map((h) => (
-                              <tr key={h.id} data-testid={`trip-history-row-${h.id}`}>
-                                <td className="muted">{h.created_at}</td>
-                                <td>{h.snapshot?.dates || '—'}</td>
-                                <td>{h.snapshot?.adults_only ? 'Yes' : 'No'}</td>
-                                <td>{h.snapshot?.lodging_booked ? '✔' : '✘'}</td>
-                                <td>{h.snapshot?.childcare_confirmed ? '✔' : '✘'}</td>
+                    <div className="grid" data-testid="trip-calendar-section">
+                      <div className="col-6" data-testid="trip-calendar-card">
+                        <div className="muted" style={{ fontSize: 12, marginBottom: 8 }} data-testid="trip-calendar-title">Calendar view</div>
+                        <Calendar
+                          value={tripCalendarCursor}
+                          onChange={(d) => setTripCalendarCursor(d)}
+                          tileClassName={({ date: d }) => {
+                            const sd = parseIsoToDate(trip.start_date);
+                            const ed = parseIsoToDate(trip.end_date);
+                            if (!sd || !ed) return null;
+                            const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                            const s = new Date(sd.getFullYear(), sd.getMonth(), sd.getDate());
+                            const e = new Date(ed.getFullYear(), ed.getMonth(), ed.getDate());
+                            if (t >= s && t <= e) return 'react-calendar__tile--active';
+                            return null;
+                          }}
+                        />
+                        <div className="muted" style={{ fontSize: 12, marginTop: 8 }} data-testid="trip-calendar-hint">
+                          {trip.start_date && trip.end_date ? (
+                            <>Selected: {trip.start_date} → {trip.end_date} ({trip.adults_only ? 'Adults-only' : 'Not adults-only'})</>
+                          ) : (
+                            <>Pick “From” and “To” to highlight the range.</>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="col-6" data-testid="trip-history">
+                        <div className="muted" style={{ fontSize: 12, marginBottom: 8 }} data-testid="trip-history-title">History (last 25 saves)</div>
+                        {tripHistory.length ? (
+                          <table className="table" data-testid="trip-history-table">
+                            <thead>
+                              <tr>
+                                <th>Saved at</th>
+                                <th>From → To</th>
+                                <th>Adults-only</th>
+                                <th>Lodging</th>
+                                <th>Childcare</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      ) : (
-                        <div className="muted" data-testid="trip-history-empty">No history yet. Saving will create snapshots.</div>
-                      )}
+                            </thead>
+                            <tbody>
+                              {tripHistory.map((h) => {
+                                const sd = h.snapshot?.start_date;
+                                const ed = h.snapshot?.end_date;
+                                const label = (sd && ed) ? `${sd} → ${ed}` : (h.snapshot?.dates || '—');
+                                return (
+                                  <tr key={h.id} data-testid={`trip-history-row-${h.id}`}>
+                                    <td className="muted">{h.created_at}</td>
+                                    <td>{label}</td>
+                                    <td>{h.snapshot?.adults_only ? 'Yes' : 'No'}</td>
+                                    <td>{h.snapshot?.lodging_booked ? '✔' : '✘'}</td>
+                                    <td>{h.snapshot?.childcare_confirmed ? '✔' : '✘'}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <div className="muted" data-testid="trip-history-empty">No history yet. Saving will create snapshots.</div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ) : (
