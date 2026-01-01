@@ -277,7 +277,15 @@ async def on_startup() -> None:
     # Ensure baseline settings doc exists
     await mongo_db.settings.update_one(
         {"_id": "default"},
-        {"$setOnInsert": {"_id": "default", "updated_at": now_utc().isoformat()}},
+        {
+            "$setOnInsert": {
+                "_id": "default",
+                "mortgage_start_principal": DEFAULT_MORTGAGE_START_PRINCIPAL,
+                "mortgage_target_principal": DEFAULT_MORTGAGE_TARGET_PRINCIPAL,
+                "mortgage_current_principal": None,
+                "updated_at": now_utc().isoformat(),
+            }
+        },
         upsert=True,
     )
 
