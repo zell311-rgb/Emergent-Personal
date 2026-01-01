@@ -154,7 +154,7 @@ export default function App() {
     for (const m of fitness.metrics || []) {
       if (!byDay.has(m.day)) byDay.set(m.day, { day: m.day });
       if (m.kind === 'weight') byDay.get(m.day).weight = m.value;
-      if (m.kind === 'waist') byDay.get(m.day).waist = m.value;
+      if (m.kind === 'body_fat') byDay.get(m.day).body_fat = m.value;
     }
     return Array.from(byDay.values()).sort((a, b) => (a.day < b.day ? -1 : 1));
   }, [fitness]);
@@ -249,11 +249,11 @@ export default function App() {
     }
   }
 
-  async function submitWaist() {
+  async function submitBodyFat() {
     setErr('');
     try {
-      await addWaist({ day: waistDay, waist_in: Number(waistVal) });
-      setWaistVal('');
+      await addBodyFat({ day: bodyFatDay, body_fat_pct: Number(bodyFatVal) });
+      setBodyFatVal('');
       const [f, s] = await Promise.all([
         getFitnessMetrics(fitnessRangeStart, fitnessRangeEnd),
         getSummary(),
@@ -261,7 +261,7 @@ export default function App() {
       setFitness(f);
       setSummary(s);
     } catch (e) {
-      setErr(e?.response?.data?.detail || e.message || 'Failed to add waist');
+      setErr(e?.response?.data?.detail || e.message || 'Failed to add body fat');
     }
   }
 
@@ -474,9 +474,9 @@ export default function App() {
                     <div className="muted">Latest weight</div>
                     <div style={{ fontSize: 22, fontWeight: 700 }}>{summary?.latest_weight_lbs ? `${summary.latest_weight_lbs} lbs` : '—'}</div>
                   </div>
-                  <div className="col-6" data-testid="latest-waist">
-                    <div className="muted">Latest waist</div>
-                    <div style={{ fontSize: 22, fontWeight: 700 }}>{summary?.latest_waist_in ? `${summary.latest_waist_in} in` : '—'}</div>
+                  <div className="col-6" data-testid="latest-bodyfat">
+                    <div className="muted">Latest body fat</div>
+                    <div style={{ fontSize: 22, fontWeight: 700 }}>{summary?.latest_body_fat_pct ? `${summary.latest_body_fat_pct}%` : '—'}</div>
                   </div>
                 </div>
                 <div className="muted" style={{ marginTop: 10, fontSize: 12 }}>
@@ -670,7 +670,7 @@ export default function App() {
                       <Tooltip />
                       <Legend />
                       <Line yAxisId="left" type="monotone" dataKey="weight" name="Weight (lbs)" stroke="rgba(86,105,255,0.9)" dot={false} />
-                      <Line yAxisId="right" type="monotone" dataKey="waist" name="Waist (in)" stroke="rgba(64,221,153,0.9)" dot={false} />
+                      <Line yAxisId="right" type="monotone" dataKey="body_fat" name="Body fat (%)" stroke="rgba(64,221,153,0.9)" dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -692,15 +692,15 @@ export default function App() {
             </div>
 
             <div className="col-4">
-              <Card title="Log waist" testId="log-waist-card">
-                <Field label="Day" testId="waist-day-field">
-                  <input className="input" data-testid="waist-day-input" type="date" value={waistDay} onChange={(e) => setWaistDay(e.target.value)} />
+              <Card title="Log body fat" testId="log-bodyfat-card">
+                <Field label="Day" testId="bodyfat-day-field">
+                  <input className="input" data-testid="bodyfat-day-input" type="date" value={bodyFatDay} onChange={(e) => setBodyFatDay(e.target.value)} />
                 </Field>
-                <Field label="Waist (in)" testId="waist-val-field">
-                  <input className="input" data-testid="waist-val-input" inputMode="decimal" value={waistVal} onChange={(e) => setWaistVal(e.target.value)} placeholder="e.g., 33.5" />
+                <Field label="Body fat (%)" testId="bodyfat-val-field">
+                  <input className="input" data-testid="bodyfat-val-input" inputMode="decimal" value={bodyFatVal} onChange={(e) => setBodyFatVal(e.target.value)} placeholder="e.g., 17.9" />
                 </Field>
                 <div style={{ marginTop: 10 }}>
-                  <button className="btn primary" data-testid="waist-submit-button" onClick={submitWaist}>Add waist</button>
+                  <button className="btn primary" data-testid="bodyfat-submit-button" onClick={submitBodyFat}>Add body fat</button>
                 </div>
               </Card>
             </div>
