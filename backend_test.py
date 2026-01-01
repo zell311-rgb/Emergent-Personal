@@ -339,6 +339,8 @@ class AccountabilityAPITester:
             "fitness": self.test_fitness_flow(),
             "mortgage": self.test_mortgage_flow(),
             "relationship": self.test_relationship_flow(),
+            "vacation_validation": self.test_vacation_planner_validation(),
+            "legacy_compatibility": self.test_legacy_dates_compatibility(),
             "settings": self.test_settings_flow(),
             "weekly_review": self.test_weekly_review()
         }
