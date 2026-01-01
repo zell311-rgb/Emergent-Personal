@@ -287,6 +287,22 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # Serve uploaded progress photos
 app.mount("/api/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
+
+class AuthRequest(BaseModel):
+    password: str
+
+
+@app.post("/api/auth/login")
+async def auth_login(payload: AuthRequest) -> Dict[str, Any]:
+    if not APP_PASSWORD_SHA256:
+        return {"enabled": False}
+
+    if not verify_password(payload.password):
+        raise HTTPException(status_code=401, detail="Invalid password")
+
+    return {"enabled": True, "ok": True}
+
+
 # Defaults (can be overridden in Settings)
 DEFAULT_MORTGAGE_START_PRINCIPAL = 330000.0
 DEFAULT_MORTGAGE_TARGET_PRINCIPAL = 299999.0
