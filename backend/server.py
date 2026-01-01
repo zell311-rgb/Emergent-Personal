@@ -423,7 +423,8 @@ async def admin_reset(confirm: str = Query(..., description="Must be 'RESET'")) 
 # -----------------------------
 
 @app.post("/api/checkins/upsert", response_model=CheckIn)
-async def upsert_checkin(payload: CheckInUpsertRequest) -> CheckIn:
+async def upsert_checkin(payload: CheckInUpsertRequest, password: Optional[str] = Query(None)) -> CheckIn:
+    require_password(password)
     d = parse_date(payload.day)
     ts = now_utc().isoformat()
 
