@@ -1080,6 +1080,50 @@ export default function App() {
                           <input className="input" data-testid="sendgrid-recipient-input" value={settings.reminder_recipient_email || ''} onChange={(e) => setSettings({ ...settings, reminder_recipient_email: e.target.value })} placeholder="recipient@email.com" />
                         </Field>
                       </div>
+
+                      <div className="col-12">
+                        <div className="muted" style={{ fontSize: 12, marginTop: 2 }} data-testid="mortgage-settings-title">Mortgage settings</div>
+                      </div>
+
+                      <div className="col-4">
+                        <Field label="Start principal" testId="mortgage-start-principal-field">
+                          <input
+                            className="input"
+                            data-testid="mortgage-start-principal-input"
+                            inputMode="decimal"
+                            value={settings.mortgage_start_principal}
+                            onChange={(e) => setSettings({ ...settings, mortgage_start_principal: Number(e.target.value) })}
+                            placeholder="330000"
+                          />
+                        </Field>
+                      </div>
+                      <div className="col-4">
+                        <Field label="Target principal" testId="mortgage-target-principal-field">
+                          <input
+                            className="input"
+                            data-testid="mortgage-target-principal-input"
+                            inputMode="decimal"
+                            value={settings.mortgage_target_principal}
+                            onChange={(e) => setSettings({ ...settings, mortgage_target_principal: Number(e.target.value) })}
+                            placeholder="299999"
+                          />
+                        </Field>
+                      </div>
+                      <div className="col-4">
+                        <Field label="Current principal (optional override)" testId="mortgage-current-principal-field">
+                          <input
+                            className="input"
+                            data-testid="mortgage-current-principal-input"
+                            inputMode="decimal"
+                            value={settings.mortgage_current_principal ?? ''}
+                            onChange={(e) => {
+                              const v = e.target.value;
+                              setSettings({ ...settings, mortgage_current_principal: v === '' ? null : Number(v) });
+                            }}
+                            placeholder="(leave blank to use latest balance check)"
+                          />
+                        </Field>
+                      </div>
                       <div className="col-3">
                         <Field label="Weekly review day" testId="weekly-day-field">
                           <select className="input" data-testid="weekly-day-select" value={settings.weekly_review_day} onChange={(e) => setSettings({ ...settings, weekly_review_day: e.target.value })}>
