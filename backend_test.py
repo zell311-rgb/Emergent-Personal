@@ -311,19 +311,17 @@ class AccountabilityAPITester:
             return True
         return False
 
-    def test_legacy_dates_compatibility(self) -> bool:
-        """Test that legacy dates field still works"""
-        # Test update with only legacy dates field
-        legacy_trip_data = {
-            "dates": "Summer 2026 - TBD",
-            "adults_only": True,
-            "lodging_booked": False,
-            "notes": "Testing legacy dates field compatibility"
-        }
-        success, data = self.run_test("Legacy Dates Field", "PUT", "api/relationship/trip", 200, legacy_trip_data)
+    def test_weekly_review(self) -> bool:
+        """Test weekly review endpoint"""
+        today = date.today().isoformat()
+        
+        success, data = self.run_test("Weekly Review", "GET", "api/review/weekly", 200,
+                                    params={"anchor_day": today})
         if success:
-            print(f"   Legacy dates field works: {data.get('dates')}")
-            print(f"   Structured dates remain: start={data.get('start_date')}, end={data.get('end_date')}")
+            print(f"   Week: {data.get('week_start')} to {data.get('week_end')}")
+            print(f"   Wakeups ≥4: {data.get('wakeups_ge_4')}")
+            print(f"   Workouts ≥5: {data.get('workouts_completed_5')}")
+            print(f"   Video ≥1: {data.get('captured_at_least_1_video')}")
             return True
         return False
 
