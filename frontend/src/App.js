@@ -856,7 +856,55 @@ export default function App() {
 
         {active === 'relationship' ? (
           <div className="grid" data-testid="relationship-view">
-            <div className="col-6">
+            {/* Gifts (full width, on top) */}
+            <div className="col-12">
+              <Card title="Monthly spontaneous gift" testId="gift-card" right={<span className="badge" data-testid="gift-rule">Reminder on the 1st</span>}>
+                <div className="grid" data-testid="gift-module-grid">
+                  <div className="col-4" data-testid="gift-form">
+                    <Field label="Day" testId="gift-day-field">
+                      <input className="input" data-testid="gift-day-input" type="date" value={giftDay} onChange={(e) => setGiftDay(e.target.value)} />
+                    </Field>
+                    <Field label="Description" testId="gift-desc-field">
+                      <input className="input" data-testid="gift-desc-input" value={giftDesc} onChange={(e) => setGiftDesc(e.target.value)} placeholder="Flowers, note, planned experience…" />
+                    </Field>
+                    <Field label="Amount (optional)" testId="gift-amount-field">
+                      <input className="input" data-testid="gift-amount-input" inputMode="decimal" value={giftAmt} onChange={(e) => setGiftAmt(e.target.value)} placeholder="e.g., 35" />
+                    </Field>
+                    <div style={{ marginTop: 10 }}>
+                      <button className="btn primary" data-testid="gift-submit-button" onClick={submitGift}>Add gift</button>
+                    </div>
+                  </div>
+
+                  <div className="col-8" data-testid="gift-log">
+                    {gifts.length ? (
+                      <table className="table" data-testid="gift-table">
+                        <thead>
+                          <tr>
+                            <th>Day</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {gifts.map((g) => (
+                            <tr key={g.id} data-testid={`gift-row-${g.id}`}>
+                              <td>{g.day}</td>
+                              <td>{g.description}</td>
+                              <td>{g.amount ? dollars(g.amount) : '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <div className="muted" data-testid="gift-empty">No gifts logged this month yet.</div>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Vacation planner (full width, bottom) */}
+            <div className="col-12">
               <Card title="Vacation planner" testId="trip-card" right={<span className="badge" data-testid="trip-deadline">Due Feb 15 (dates/bookings)</span>}>
                 {trip ? (
                   <div data-testid="trip-form">
@@ -991,50 +1039,6 @@ export default function App() {
                 ) : (
                   <div className="muted" data-testid="trip-empty">Loading…</div>
                 )}
-              </Card>
-            </div>
-
-            <div className="col-6">
-              <Card title="Monthly spontaneous gift" testId="gift-card" right={<span className="badge" data-testid="gift-rule">Reminder on the 1st</span>}>
-                <Field label="Day" testId="gift-day-field">
-                  <input className="input" data-testid="gift-day-input" type="date" value={giftDay} onChange={(e) => setGiftDay(e.target.value)} />
-                </Field>
-                <Field label="Description" testId="gift-desc-field">
-                  <input className="input" data-testid="gift-desc-input" value={giftDesc} onChange={(e) => setGiftDesc(e.target.value)} placeholder="Flowers, note, planned experience…" />
-                </Field>
-                <Field label="Amount (optional)" testId="gift-amount-field">
-                  <input className="input" data-testid="gift-amount-input" inputMode="decimal" value={giftAmt} onChange={(e) => setGiftAmt(e.target.value)} placeholder="e.g., 35" />
-                </Field>
-                <div style={{ marginTop: 10 }}>
-                  <button className="btn primary" data-testid="gift-submit-button" onClick={submitGift}>Add gift</button>
-                </div>
-
-                <hr className="sep" />
-
-                <div data-testid="gift-log">
-                  {gifts.length ? (
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Day</th>
-                          <th>Description</th>
-                          <th>Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {gifts.map((g) => (
-                          <tr key={g.id} data-testid={`gift-row-${g.id}`}>
-                            <td>{g.day}</td>
-                            <td>{g.description}</td>
-                            <td>{g.amount ? dollars(g.amount) : '—'}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <div className="muted" data-testid="gift-empty">No gifts logged this month yet.</div>
-                  )}
-                </div>
               </Card>
             </div>
           </div>
