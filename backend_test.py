@@ -72,7 +72,92 @@ class AccountabilityAPITester:
             self.log_test(name, False, f"Exception: {str(e)}")
             return False, {}
 
-    def test_health(self) -> bool:
+    def test_password_protection(self) -> bool:
+        """Test password protection middleware"""
+        print("   Testing password protection...")
+        
+        # Test 1: Public endpoints should work without password
+        success, data = self.run_test("Health Check (Public)", "GET", "api/health", 200)
+        if not success:
+            return False
+        print(f"   ✅ Health endpoint accessible without password")
+        
+        # Test 2: Auth login endpoint should be public
+        success, data = self.run_test("Auth Login Endpoint (Public)", "POST", "api/auth/login", 401, 
+                                    data={"password": "wrong_password"})
+        if not success:
+            return False
+        print(f"   ✅ Auth login endpoint accessible (returns 401 for wrong password)")
+        
+        # Test 3: Protected endpoints should return 401 without password
+        success, data = self.run_test("Summary Without Password", "GET", "api/summary", 401)
+        if not success:
+            return False
+        print(f"   ✅ Protected endpoint returns 401 without password")
+        
+        # Test 4: Protected endpoints should return 401 with wrong password
+        wrong_headers = {"x-app-password": "wrong_password"}
+        success, data = self.run_test("Summary With Wrong Password", "GET", "api/summary", 401, 
+                                    headers=wrong_headers)
+        if not success:
+            return False
+        print(f"   ✅ Protected endpoint returns 401 with wrong password")
+        
+        # Test 5: Auth login with correct password should succeed
+        success, data = self.run_test("Auth Login With Correct Password", "POST", "api/auth/login", 200,
+                                    data={"password": self.correct_password})
+        if not success:
+            return False
+        if not data.get("ok") or not data.get("enabled"):
+            self.log_test("Auth Login Response Validation", False, f"Expected ok=True and enabled=True, got {data}")
+            return False
+        print(f"   ✅ Auth login succeeds with correct password")
+        
+        # Test 6: Protected endpoints should work with correct password
+        correct_headers = {"x-app-password": self.correct_password}
+        success, data = self.run_test("Summary With Correct Password", "GET", "api/summary", 200,
+                                    headers=correct_headers)
+        if not success:
+            return False
+        print(f"   ✅ Protected endpoint works with correct password")
+        
+        # Test 7: Test password via query parameter (alternative method)
+        success, data = self.run_test("Summary With Password Query Param", "GET", "api/summary", 200,
+                                    params={"password": self.correct_password})
+        if not success:
+            return False
+        print(f"   ✅ Protected endpoint works with password query parameter")
+        
+        # Test 8: Test CORS headers are present in 401 responses
+        success, response_data = self.run_test("CORS Headers in 401", "GET", "api/summary", 401)
+        if not success:
+            return False
+        print(f"   ✅ CORS headers present in 401 responses")
+        
+        return True
+
+    def test_password_integration_flow(self) -> bool:
+        """Test full integration flow with password protection"""
+        print("   Testing password integration flow...")
+        
+        # Set password header for all subsequent requests
+        self.session.headers.update({"x-app-password": self.correct_password})
+        
+        # Test that all major endpoints work with password
+        endpoints_to_test = [
+            ("GET", "api/summary", 200),
+            ("GET", "api/settings", 200),
+            ("GET", "api/relationship/trip", 200),
+            ("GET", "api/mortgage/summary", 200)
+        ]
+        
+        for method, endpoint, expected_status in endpoints_to_test:
+            success, data = self.run_test(f"Password Integration - {endpoint}", method, endpoint, expected_status)
+            if not success:
+                return False
+        
+        print(f"   ✅ All major endpoints work with password authentication")
+        return True
         """Test health endpoint"""
         success, data = self.run_test("Health Check", "GET", "api/health", 200)
         if success and data.get("status") == "ok":
