@@ -564,6 +564,7 @@ async def get_trip() -> TripState:
     return TripState(
         id=doc["_id"],
         dates=doc.get("dates", ""),
+        adults_only=bool(doc.get("adults_only", True)),
         lodging_booked=bool(doc.get("lodging_booked", False)),
         childcare_confirmed=bool(doc.get("childcare_confirmed", False)),
         notes=doc.get("notes", ""),
@@ -573,12 +574,16 @@ async def get_trip() -> TripState:
 
 @app.put("/api/relationship/trip", response_model=TripState)
 async def update_trip(payload: TripUpdate) -> TripState:
+    # write-through + history
+    prev = await mongo_db.trip.find_one({"_id": "default"})
     ts = now_utc().isoformat()
+
     await mongo_db.trip.update_one(
         {"_id": "default"},
         {
             "$set": {
                 "dates": payload.dates or "",
+                "adults_only": bool(payload.adults_only),
                 "lodging_booked": bool(payload.lodging_booked),
                 "childcare_confirmed": bool(payload.childcare_confirmed),
                 "notes": payload.notes or "",
@@ -587,7 +592,43 @@ async def update_trip(payload: TripUpdate) -> TripState:
         },
         upsert=True,
     )
+
+    if prev:
+        # Save previous snapshot for audit/history
+        snap = TripState(
+            id=prev.get("_id", "default"),
+            dates=prev.get("dates", ""),
+            adults_only=bool(prev.get("adults_only", True)),
+            lodging_booked=bool(prev.get("lodging_booked", False)),
+            childcare_confirmed=bool(prev.get("childcare_confirmed", False)),
+            notes=prev.get("notes", ""),
+            updated_at=prev.get("updated_at", ts),
+        ).model_dump()
+        await mongo_db.trip_history.insert_one({
+            "_id": new_id(),
+            "trip_id": "default",
+            "created_at": ts,
+            "snapshot": snap,
+        })
+
     return await get_trip()
+
+
+@app.get("/api/relationship/trip/history", response_model=List[TripHistoryEntry])
+async def trip_history(limit: int = Query(25, ge=1, le=200)) -> List[TripHistoryEntry]:
+    out: List[TripHistoryEntry] = []
+    cursor = mongo_db.trip_history.find({"trip_id": "default"}).sort("created_at", -1).limit(limit)
+    async for doc in cursor:
+        snap = doc.get("snapshot") or {}
+        out.append(
+            TripHistoryEntry(
+                id=doc["_id"],
+                trip_id=doc.get("trip_id", "default"),
+                created_at=doc.get("created_at", ""),
+                snapshot=TripState(**snap),
+            )
+        )
+    return out
 
 
 @app.post("/api/relationship/gifts", response_model=GiftEntry)
