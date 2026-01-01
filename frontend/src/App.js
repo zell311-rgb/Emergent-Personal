@@ -846,9 +846,14 @@ export default function App() {
                 {trip ? (
                   <div data-testid="trip-form">
                     <div className="grid">
-                      <div className="col-8">
-                        <Field label="Dates (freeform)" testId="trip-dates-field">
-                          <input className="input" data-testid="trip-dates-input" value={trip.dates || ''} onChange={(e) => setTrip({ ...trip, dates: e.target.value })} placeholder="e.g., Mar 12–15" />
+                      <div className="col-4">
+                        <Field label="From" testId="trip-start-date-field">
+                          <input className="input" data-testid="trip-start-date-input" type="date" value={trip.start_date || ''} onChange={(e) => setTrip({ ...trip, start_date: e.target.value })} />
+                        </Field>
+                      </div>
+                      <div className="col-4">
+                        <Field label="To" testId="trip-end-date-field">
+                          <input className="input" data-testid="trip-end-date-input" type="date" value={trip.end_date || ''} onChange={(e) => setTrip({ ...trip, end_date: e.target.value })} />
                         </Field>
                       </div>
                       <div className="col-4">
@@ -857,6 +862,12 @@ export default function App() {
                             <input type="checkbox" checked={!!trip.adults_only} onChange={(e) => setTrip({ ...trip, adults_only: e.target.checked })} style={{ marginRight: 8 }} />
                             Adults-only
                           </label>
+                        </Field>
+                      </div>
+
+                      <div className="col-12">
+                        <Field label="Label (optional)" testId="trip-dates-field">
+                          <input className="input" data-testid="trip-dates-input" value={trip.dates || ''} onChange={(e) => setTrip({ ...trip, dates: e.target.value })} placeholder="e.g., ‘Spring getaway’ (optional)" />
                         </Field>
                       </div>
                     </div>
