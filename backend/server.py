@@ -599,10 +599,23 @@ async def update_trip(payload: TripUpdate) -> TripState:
     prev = await mongo_db.trip.find_one({"_id": "default"})
     ts = now_utc().isoformat()
 
+    # Validate dates when provided
+    sd = payload.start_date or ""
+    ed = payload.end_date or ""
+    if sd:
+        _ = parse_date(sd)
+    if ed:
+        _ = parse_date(ed)
+    if sd and ed:
+        if parse_date(ed) < parse_date(sd):
+            raise HTTPException(status_code=400, detail="end_date must be >= start_date")
+
     await mongo_db.trip.update_one(
         {"_id": "default"},
         {
             "$set": {
+                "start_date": sd,
+                "end_date": ed,
                 "dates": payload.dates or "",
                 "adults_only": bool(payload.adults_only),
                 "lodging_booked": bool(payload.lodging_booked),
@@ -618,6 +631,8 @@ async def update_trip(payload: TripUpdate) -> TripState:
         # Save previous snapshot for audit/history
         snap = TripState(
             id=prev.get("_id", "default"),
+            start_date=prev.get("start_date", ""),
+            end_date=prev.get("end_date", ""),
             dates=prev.get("dates", ""),
             adults_only=bool(prev.get("adults_only", True)),
             lodging_booked=bool(prev.get("lodging_booked", False)),
