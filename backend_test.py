@@ -33,17 +33,23 @@ class AccountabilityAPITester:
             print(f"❌ {name} - {details}")
 
     def run_test(self, name: str, method: str, endpoint: str, expected_status: int, 
-                 data: Optional[Dict] = None, params: Optional[Dict] = None) -> tuple[bool, Dict]:
+                 data: Optional[Dict] = None, params: Optional[Dict] = None, 
+                 headers: Optional[Dict] = None) -> tuple[bool, Dict]:
         """Run a single API test"""
         url = f"{self.base_url}/{endpoint}"
         
+        # Merge headers
+        request_headers = {}
+        if headers:
+            request_headers.update(headers)
+        
         try:
             if method == 'GET':
-                response = self.session.get(url, params=params)
+                response = self.session.get(url, params=params, headers=request_headers)
             elif method == 'POST':
-                response = self.session.post(url, json=data, params=params)
+                response = self.session.post(url, json=data, params=params, headers=request_headers)
             elif method == 'PUT':
-                response = self.session.put(url, json=data, params=params)
+                response = self.session.put(url, json=data, params=params, headers=request_headers)
             else:
                 raise ValueError(f"Unsupported method: {method}")
 
