@@ -549,15 +549,38 @@ export default function App() {
                   const end = isoToday();
                   const start = addDays(end, -13);
                   const rows = await listCheckIns(start, end);
-                  // populate just-in-time (simple)
-                  // eslint-disable-next-line no-console
-                  console.log('recent checkins', rows);
+                  setRecentCheckins(rows.slice().reverse());
                 } catch (e) {
                   setErr(e?.response?.data?.detail || e.message || 'Failed to load recent');
                 }
               }}>Load</button>}>
-                <div className="muted" style={{ fontSize: 12 }} data-testid="recent-checkins-hint">
-                  (For now this loads to console; next iteration can render a mini table.)
+                <div style={{ marginTop: 10 }} data-testid="recent-checkins-table">
+                  {recentCheckins.length ? (
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>Day</th>
+                          <th>5AM</th>
+                          <th>Workout</th>
+                          <th>Video</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentCheckins.map((c) => (
+                          <tr key={c.id} data-testid={`recent-checkin-row-${c.id}`}>
+                            <td>{c.day}</td>
+                            <td>{c.wakeup_5am ? '✔' : '✘'}</td>
+                            <td>{c.workout ? '✔' : '✘'}</td>
+                            <td>{c.video_captured ? '✔' : '✘'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div className="muted" style={{ fontSize: 12 }} data-testid="recent-checkins-hint">
+                      Click “Load” to view your last 14 days.
+                    </div>
+                  )}
                 </div>
               </Card>
             </div>
