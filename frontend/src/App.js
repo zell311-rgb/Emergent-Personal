@@ -63,8 +63,6 @@ function parseIsoToDate(iso) {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-// (removed unused fmtIsoDate / fmtShort helpers)
-
 function dollars(v) {
   if (v === null || v === undefined) return '—';
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
