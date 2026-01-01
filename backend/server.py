@@ -848,6 +848,14 @@ async def get_settings() -> SettingsResponse:
 async def update_settings(payload: SettingsUpdate) -> SettingsResponse:
     # NOTE: For now we allow storing API key in DB because user doesn't have domain/account yet.
     # In production, prefer storing API keys in environment variables / secret manager.
+
+    # Validate mortgage numbers
+    ms = clamp_float(float(payload.mortgage_start_principal), 1, 100_000_000, "mortgage_start_principal")
+    mt = clamp_float(float(payload.mortgage_target_principal), 1, 100_000_000, "mortgage_target_principal")
+    mc = payload.mortgage_current_principal
+    if mc is not None:
+        mc = clamp_float(float(mc), 1, 100_000_000, "mortgage_current_principal")
+
     ts = now_utc().isoformat()
     await mongo_db.settings.update_one(
         {"_id": "default"},
@@ -860,6 +868,9 @@ async def update_settings(payload: SettingsUpdate) -> SettingsResponse:
                 "weekly_review_hour_local": int(payload.weekly_review_hour_local),
                 "monthly_gift_day": int(payload.monthly_gift_day),
                 "email_enabled": bool(payload.email_enabled),
+                "mortgage_start_principal": ms,
+                "mortgage_target_principal": mt,
+                "mortgage_current_principal": mc,
                 "updated_at": ts,
             }
         },
