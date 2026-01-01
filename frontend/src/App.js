@@ -16,7 +16,7 @@ import {
   addBalanceCheck,
   addGift,
   addPrincipalPayment,
-  addWaist,
+  addBodyFat,
   addWeight,
   backendOrigin,
   getFitnessMetrics,
@@ -118,8 +118,8 @@ export default function App() {
 
   const [weightDay, setWeightDay] = useState(isoToday());
   const [weightVal, setWeightVal] = useState('');
-  const [waistDay, setWaistDay] = useState(isoToday());
-  const [waistVal, setWaistVal] = useState('');
+  const [bodyFatDay, setBodyFatDay] = useState(isoToday());
+  const [bodyFatVal, setBodyFatVal] = useState('');
   const [photoDay, setPhotoDay] = useState(isoToday());
   const [photoFile, setPhotoFile] = useState(null);
 

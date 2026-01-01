@@ -38,8 +38,8 @@ export async function addWeight(payload) {
   return data;
 }
 
-export async function addWaist(payload) {
-  const { data } = await api.post('/api/fitness/waist', payload);
+export async function addBodyFat(payload) {
+  const { data } = await api.post('/api/fitness/body-fat', payload);
   return data;
 }
 
