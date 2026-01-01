@@ -943,7 +943,7 @@ async def summary() -> SummaryResponse:
         week_workout_count=week_workout_count,
         week_video_count=week_video_count,
         latest_weight_lbs=latest_weight[0]["value"] if latest_weight else None,
-        latest_waist_in=latest_waist[0]["value"] if latest_waist else None,
+        latest_body_fat_pct=latest_bf[0]["value"] if latest_bf else None,
         mortgage_target_principal=MORTGAGE_TARGET_PRINCIPAL,
         mortgage_start_principal=MORTGAGE_START_PRINCIPAL,
         latest_principal_balance=mortgage.get("latest_principal_balance"),
