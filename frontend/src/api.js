@@ -1,13 +1,10 @@
 import axios from 'axios';
 
-const baseURL = process.env.REACT_APP_BACKEND_URL;
-
-if (!baseURL) {
-  // This should be set by the platform in /frontend/.env
-  // We intentionally do not fallback to a hardcoded URL.
-  // eslint-disable-next-line no-console
-  console.warn('REACT_APP_BACKEND_URL is not set. API calls will fail until it is configured.');
-}
+// IMPORTANT:
+// - Prefer REACT_APP_BACKEND_URL when present (production-configured).
+// - Fallback to same-origin for environments where ingress routes /api to backend.
+// - We do NOT hardcode any URLs or ports.
+const baseURL = process.env.REACT_APP_BACKEND_URL || window.location.origin;
 
 export const api = axios.create({
   baseURL,
@@ -16,6 +13,10 @@ export const api = axios.create({
   },
   timeout: 15000,
 });
+
+export function backendOrigin() {
+  return baseURL;
+}
 
 export async function getSummary() {
   const { data } = await api.get('/api/summary');
