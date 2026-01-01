@@ -289,8 +289,6 @@ PUBLIC_PATH_PREFIXES = [
 
 
 def path_is_public(path: str) -> bool:
-    if path.startswith("/api/uploads/"):
-        return True
     return any(path.startswith(p) for p in PUBLIC_PATH_PREFIXES)
 
 
@@ -300,9 +298,19 @@ async def password_gate(request, call_next):
     if not APP_PASSWORD_SHA256:
         return await call_next(request)
 
-    # Allow CORS preflight; ensure we include CORS headers even when unauthorized.
+    # Allow CORS preflight; include headers so the browser accepts it.
     if request.method == "OPTIONS":
-        return Response(status_code=204)
+        origin = request.headers.get("origin", "*")
+        return Response(
+            status_code=204,
+            headers={
+                "Access-Control-Allow-Origin": origin,
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+                "Access-Control-Allow-Headers": "*",
+                "Vary": "Origin",
+            },
+        )
 
     path = request.url.path
     if not path.startswith("/api"):
@@ -311,7 +319,7 @@ async def password_gate(request, call_next):
     if path_is_public(path):
         return await call_next(request)
 
-    pw = request.headers.get("x-app-password", "")
+    pw = request.headers.get("x-app-password", "") or request.query_params.get("password", "")
     if not pw or not verify_password(pw):
         resp = JSONResponse(status_code=401, content={"detail": "Unauthorized"})
         # Ensure browser can read the 401 (CORS)
