@@ -204,17 +204,31 @@ class AccountabilityAPITester:
         if not success:
             return False
         
-        # Test update trip
+        # Test update trip with structured dates
+        future_start = (date.today() + timedelta(days=30)).isoformat()
+        future_end = (date.today() + timedelta(days=33)).isoformat()
+        
         trip_data = {
-            "dates": "March 15-18, 2026",
+            "start_date": future_start,
+            "end_date": future_end,
+            "dates": "Spring getaway",
+            "adults_only": True,
             "lodging_booked": True,
             "childcare_confirmed": False,
-            "notes": "Beach resort getaway - test update"
+            "notes": "Beach resort getaway - test update with structured dates"
         }
-        success, data = self.run_test("Update Trip", "PUT", "api/relationship/trip", 200, trip_data)
+        success, data = self.run_test("Update Trip with Structured Dates", "PUT", "api/relationship/trip", 200, trip_data)
         if not success:
             return False
-        print(f"   Updated trip: {data.get('dates')}")
+        print(f"   Updated trip: {data.get('start_date')} → {data.get('end_date')}")
+        print(f"   Adults-only: {data.get('adults_only')}, Lodging: {data.get('lodging_booked')}")
+        
+        # Test trip history
+        success, history_data = self.run_test("Get Trip History", "GET", "api/relationship/trip/history", 200,
+                                            params={"limit": 10})
+        if not success:
+            return False
+        print(f"   Retrieved {len(history_data)} trip history entries")
         
         # Test add gift
         gift_data = {
