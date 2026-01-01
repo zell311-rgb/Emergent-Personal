@@ -917,23 +917,29 @@ export default function App() {
                         <div className="calendar-wrap" data-testid="trip-calendar">
                           <Calendar
                             value={tripCalendarCursor}
+                            activeStartDate={tripCalendarActiveStartDate}
+                            onActiveStartDateChange={({ activeStartDate }) => {
+                              if (activeStartDate) setTripCalendarActiveStartDate(activeStartDate);
+                            }}
                             onChange={(d) => setTripCalendarCursor(d)}
-                            tileClassName={({ date: d }) => {
+                            tileClassName={({ date: d, view }) => {
+                              // Highlight only on month view
+                              if (view !== 'month') return null;
+
                               const sd = parseIsoToDate(trip.start_date);
                               const ed = parseIsoToDate(trip.end_date);
                               if (!sd || !ed) return null;
-                              const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-                              const s = new Date(sd.getFullYear(), sd.getMonth(), sd.getDate());
-                              const e = new Date(ed.getFullYear(), ed.getMonth(), ed.getDate());
 
-                              const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+                              // normalize to midnight
+                              const t = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+                              const s = new Date(sd.getFullYear(), sd.getMonth(), sd.getDate()).getTime();
+                              const e = new Date(ed.getFullYear(), ed.getMonth(), ed.getDate()).getTime();
 
-                              if (t >= s && t <= e) {
-                                if (sameDay(t, s)) return 'trip-range-start';
-                                if (sameDay(t, e)) return 'trip-range-end';
-                                return 'trip-range';
-                              }
-                              return null;
+                              if (t < s || t > e) return null;
+
+                              if (t === s) return 'trip-range-start';
+                              if (t === e) return 'trip-range-end';
+                              return 'trip-range';
                             }}
                           />
                         </div>
