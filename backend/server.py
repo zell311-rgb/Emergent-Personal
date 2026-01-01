@@ -114,7 +114,8 @@ class MortgageEvent(BaseModel):
 
 
 class TripUpdate(BaseModel):
-    dates: Optional[str] = ""  # freeform, user will decide later
+    dates: Optional[str] = ""  # freeform
+    adults_only: bool = True
     lodging_booked: bool = False
     childcare_confirmed: bool = False
     notes: Optional[str] = ""
@@ -123,10 +124,18 @@ class TripUpdate(BaseModel):
 class TripState(BaseModel):
     id: str
     dates: str = ""
+    adults_only: bool
     lodging_booked: bool
     childcare_confirmed: bool
     notes: str = ""
     updated_at: str
+
+
+class TripHistoryEntry(BaseModel):
+    id: str
+    trip_id: str
+    created_at: str
+    snapshot: TripState
 
 
 class GiftCreate(BaseModel):
@@ -253,6 +262,7 @@ async def on_startup() -> None:
             "$setOnInsert": {
                 "_id": "default",
                 "dates": "",
+                "adults_only": True,
                 "lodging_booked": False,
                 "childcare_confirmed": False,
                 "notes": "",
@@ -267,6 +277,7 @@ async def on_startup() -> None:
     await mongo_db.metrics.create_index([("day", 1), ("kind", 1)])
     await mongo_db.mortgage_events.create_index([("day", 1), ("kind", 1)])
     await mongo_db.gifts.create_index("day")
+    await mongo_db.trip_history.create_index([("trip_id", 1), ("created_at", -1)])
 
 
 @app.on_event("shutdown")
