@@ -143,6 +143,8 @@ export default function App() {
   const [gifts, setGifts] = useState([]);
 
   const [settings, setSettings] = useState(null);
+  const [resetConfirm, setResetConfirm] = useState('');
+  const [resetBusy, setResetBusy] = useState(false);
 
   const monthKey = useMemo(() => monthKeyFromIso(isoToday()), []);
 
