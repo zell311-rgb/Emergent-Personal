@@ -117,3 +117,8 @@ export async function getWeeklyReview(anchor_day) {
   const { data } = await api.get('/api/review/weekly', { params: { anchor_day } });
   return data;
 }
+
+export async function adminReset(confirm = 'RESET') {
+  const { data } = await api.post('/api/admin/reset', null, { params: { confirm } });
+  return data;
+}

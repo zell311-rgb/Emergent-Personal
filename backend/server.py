@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Literal, Optional, Tuple
 
 from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, File, HTTPException, Query, UploadFile
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -302,6 +303,56 @@ async def on_shutdown() -> None:
 @app.get("/api/health")
 async def health() -> Dict[str, Any]:
     return {"status": "ok", "app": APP_TITLE}
+
+
+@app.post("/api/admin/reset")
+async def admin_reset(confirm: str = Query(..., description="Must be 'RESET'")) -> Dict[str, Any]:
+    """Dangerous: wipes all user-entered data for this single-user MVP.
+
+    Notes:
+    - Does not delete the settings doc (so SendGrid config stays).
+    - Does not delete uploaded photo files on disk (only removes DB references).
+    """
+    if confirm != "RESET":
+        raise HTTPException(status_code=400, detail="confirm must be 'RESET'")
+
+    collections_to_clear = [
+        "checkins",
+        "metrics",
+        "photos",
+        "mortgage_events",
+        "gifts",
+        "trip_history",
+    ]
+
+    deleted = {}
+    for c in collections_to_clear:
+        res = await mongo_db[c].delete_many({})
+        deleted[c] = res.deleted_count
+
+    # reset trip to defaults
+    await mongo_db.trip.update_one(
+        {"_id": "default"},
+        {
+            "$set": {
+                "start_date": "",
+                "end_date": "",
+                "dates": "",
+                "adults_only": True,
+                "lodging_booked": False,
+                "childcare_confirmed": False,
+                "notes": "",
+                "updated_at": now_utc().isoformat(),
+            }
+        },
+        upsert=True,
+    )
+
+    return {
+        "ok": True,
+        "deleted": deleted,
+        "note": "Settings kept. Photo files on disk not deleted (DB entries cleared).",
+    }
 
 
 # -----------------------------
