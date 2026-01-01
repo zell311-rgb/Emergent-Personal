@@ -159,13 +159,14 @@ export default function App() {
     setErr('');
     setLoading(true);
     try {
-      const [s, w, f, ms, me, t, gs, st] = await Promise.all([
+      const [s, w, f, ms, me, t, th, gs, st] = await Promise.all([
         getSummary(),
         getWeeklyReview(),
         getFitnessMetrics(fitnessRangeStart, fitnessRangeEnd),
         getMortgageSummary(),
         listMortgageEvents(mortgageRangeStart, mortgageRangeEnd),
         getTrip(),
+        getTripHistory(25),
         listGifts(monthKey.year, monthKey.month),
         getSettings(),
       ]);
@@ -175,6 +176,7 @@ export default function App() {
       setMortgageSummary(ms);
       setMortgageEvents(me);
       setTrip(t);
+      setTripHistory(th);
       setGifts(gs);
       setSettings(st);
     } catch (e) {
