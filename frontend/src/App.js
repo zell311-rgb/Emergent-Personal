@@ -1100,6 +1100,26 @@ export default function App() {
                 <div className="muted" style={{ fontSize: 13 }} data-testid="settings-data-text">
                   This app is locked to the 2026 plan. No login (single user). Data is stored locally in MongoDB.
                 </div>
+
+                <hr className="sep" />
+
+                <div data-testid="reset-data-section">
+                  <div style={{ fontWeight: 650 }} data-testid="reset-data-title">Reset all data</div>
+                  <div className="muted" style={{ fontSize: 12, marginTop: 4 }} data-testid="reset-data-warning">
+                    This wipes check-ins, fitness metrics, mortgage events, gifts, and vacation history. Settings are kept. Photo files on disk are kept (DB entries removed).
+                  </div>
+
+                  <div style={{ marginTop: 10 }}>
+                    <label className="label">Type RESET to confirm</label>
+                    <input className="input" data-testid="reset-confirm-input" value={resetConfirm} onChange={(e) => setResetConfirm(e.target.value)} placeholder="RESET" />
+                  </div>
+
+                  <div style={{ marginTop: 10 }}>
+                    <button className="btn danger" data-testid="reset-data-button" onClick={resetAllData} disabled={resetBusy}>
+                      {resetBusy ? 'Resetting…' : 'Reset all data'}
+                    </button>
+                  </div>
+                </div>
               </Card>
             </div>
           </div>
