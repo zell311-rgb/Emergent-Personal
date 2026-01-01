@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import Response
+
 from fastapi.responses import JSONResponse
 
 from motor.motor_asyncio import AsyncIOMotorClient
