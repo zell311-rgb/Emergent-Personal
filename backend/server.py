@@ -256,6 +256,18 @@ app = FastAPI(title=APP_TITLE)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+
+# Password protection (single shared password)
+# The password itself is not stored; only SHA256 hash in env.
+APP_PASSWORD_SHA256 = os.environ.get("APP_PASSWORD_SHA256", "").strip()
+
+
+def require_password(password: Optional[str]) -> None:
+    if not APP_PASSWORD_SHA256:
+        return
+    if not password or not verify_password(password):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
