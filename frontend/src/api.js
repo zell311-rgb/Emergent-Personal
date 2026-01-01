@@ -27,6 +27,11 @@ export function backendOrigin() {
   return baseURL;
 }
 
+export async function authLogin(password) {
+  const { data } = await api.post('/api/auth/login', { password });
+  return data;
+}
+
 export async function getSummary() {
   const { data } = await api.get('/api/summary');
   return data;
