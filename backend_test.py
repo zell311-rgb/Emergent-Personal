@@ -117,7 +117,7 @@ class AccountabilityAPITester:
         return False
 
     def test_fitness_flow(self) -> bool:
-        """Test fitness metrics (weight, waist)"""
+        """Test fitness metrics (weight, body fat, backward compatibility)"""
         today = date.today().isoformat()
         
         # Test add weight
@@ -127,12 +127,19 @@ class AccountabilityAPITester:
             return False
         print(f"   Added weight: {data.get('value')} lbs")
         
-        # Test add waist
-        waist_data = {"day": today, "waist_in": 34.0}
-        success, data = self.run_test("Add Waist", "POST", "api/fitness/waist", 200, waist_data)
+        # Test add body fat (new endpoint)
+        body_fat_data = {"day": today, "body_fat_pct": 18.5}
+        success, data = self.run_test("Add Body Fat", "POST", "api/fitness/body-fat", 200, body_fat_data)
         if not success:
             return False
-        print(f"   Added waist: {data.get('value')} in")
+        print(f"   Added body fat: {data.get('value')}%")
+        
+        # Test backward compatibility - waist endpoint should still work as alias
+        waist_data = {"day": today, "waist_in": 17.2}
+        success, data = self.run_test("Add Waist (Backward Compat)", "POST", "api/fitness/waist", 200, waist_data)
+        if not success:
+            return False
+        print(f"   Added via waist endpoint (body fat): {data.get('value')}%")
         
         # Test get fitness metrics
         start_date = (date.today() - timedelta(days=30)).isoformat()
@@ -145,7 +152,12 @@ class AccountabilityAPITester:
             photos = data.get("photos", [])
             latest = data.get("latest", {})
             print(f"   Retrieved {len(metrics)} metrics, {len(photos)} photos")
-            print(f"   Latest weight: {latest.get('weight_lbs')}, waist: {latest.get('waist_in')}")
+            print(f"   Latest weight: {latest.get('weight_lbs')}, body fat: {latest.get('body_fat_pct')}")
+            
+            # Verify body_fat metrics are returned (not waist)
+            body_fat_metrics = [m for m in metrics if m.get('kind') == 'body_fat']
+            print(f"   Body fat metrics found: {len(body_fat_metrics)}")
+            
             return True
         return False
 
