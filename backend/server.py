@@ -885,7 +885,7 @@ async def summary() -> SummaryResponse:
     current_workout_streak = await calc_current_streak("workout")
 
     latest_weight = await mongo_db.metrics.find({"kind": "weight"}).sort("day", -1).limit(1).to_list(length=1)
-    latest_waist = await mongo_db.metrics.find({"kind": "waist"}).sort("day", -1).limit(1).to_list(length=1)
+    latest_bf = await mongo_db.metrics.find({"kind": {"$in": ["body_fat", "waist"]}}).sort("day", -1).limit(1).to_list(length=1)
 
     mortgage = await mortgage_summary()
 
