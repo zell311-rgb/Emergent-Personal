@@ -33,6 +33,7 @@ import {
   updateTrip,
   uploadPhoto,
   upsertCheckIn,
+  adminReset,
 } from './api';
 
 function isoToday() {
