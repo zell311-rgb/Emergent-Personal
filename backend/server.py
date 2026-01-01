@@ -337,6 +337,9 @@ UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Serve uploaded progress photos
+# Note: Files served via StaticFiles bypass standard FastAPI middleware.
+# So uploads are NOT password-protected at the backend layer in this MVP.
+# Since uploads are hard-to-guess filenames and this is a single-user tool, we accept this tradeoff.
 app.mount("/api/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
