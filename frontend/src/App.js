@@ -269,6 +269,7 @@ export default function App() {
       const [s, w] = await Promise.all([getSummary(), getWeeklyReview(checkDay)]);
       setSummary(s);
       setWeekly(w);
+      showToast('Check-in saved');
       return saved;
     } catch (e) {
       setErr(e?.response?.data?.detail || e.message || 'Failed to save check-in');
@@ -374,6 +375,7 @@ export default function App() {
       const [s, th] = await Promise.all([getSummary(), getTripHistory(25)]);
       setSummary(s);
       setTripHistory(th);
+      showToast('Vacation plan saved');
     } catch (e) {
       setErr(e?.response?.data?.detail || e.message || 'Failed to update trip');
     }
@@ -391,6 +393,7 @@ export default function App() {
       ]);
       setGifts(gs);
       setSummary(s);
+      showToast('Gift added');
     } catch (e) {
       setErr(e?.response?.data?.detail || e.message || 'Failed to add gift');
     }
@@ -401,6 +404,7 @@ export default function App() {
     try {
       const st = await updateSettings(settings);
       setSettings(st);
+      showToast('Settings saved');
     } catch (e) {
       setErr(e?.response?.data?.detail || e.message || 'Failed to save settings');
     }
@@ -418,6 +422,7 @@ export default function App() {
       setResetConfirm('');
       await refreshAll();
       setActive('dashboard');
+      showToast('All data reset');
     } catch (e) {
       setErr(e?.response?.data?.detail || e.message || 'Failed to reset data');
     } finally {
