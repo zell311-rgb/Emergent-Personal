@@ -346,6 +346,7 @@ export default function App() {
       setMortgageSummary(ms);
       setMortgageEvents(me);
       setSummary(s);
+      showToast('Payment added');
     } catch (e) {
       setErr(e?.response?.data?.detail || e.message || 'Failed to add payment');
     }
