@@ -288,6 +288,7 @@ export default function App() {
       ]);
       setFitness(f);
       setSummary(s);
+      showToast('Weight added');
     } catch (e) {
       setErr(e?.response?.data?.detail || e.message || 'Failed to add weight');
     }
