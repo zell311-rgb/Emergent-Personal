@@ -366,6 +366,7 @@ export default function App() {
       setMortgageSummary(ms);
       setMortgageEvents(me);
       setSummary(s);
+      showToast('Balance check added');
     } catch (e) {
       setErr(e?.response?.data?.detail || e.message || 'Failed to add balance check');
     }
