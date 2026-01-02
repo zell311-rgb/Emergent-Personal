@@ -326,6 +326,7 @@ export default function App() {
       ]);
       setFitness(f);
       setSummary(s);
+      showToast('Photo uploaded');
     } catch (e) {
       setErr(e?.response?.data?.detail || e.message || 'Failed to upload photo');
     }
