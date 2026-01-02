@@ -152,6 +152,8 @@ export default function App() {
   const [resetConfirm, setResetConfirm] = useState('');
   const [resetBusy, setResetBusy] = useState(false);
 
+  const [toast, setToast] = useState(null); // { message: string, kind: 'success' | 'info' | 'error' }
+
   const monthKey = useMemo(() => monthKeyFromIso(isoToday()), []);
 
   const fitnessSeries = useMemo(() => {
@@ -222,6 +224,12 @@ export default function App() {
       setTripCalendarActiveStartDate(sd);
     }
   }, [trip?.start_date]);
+
+  function showToast(message, kind = 'success') {
+    setToast({ message, kind });
+    window.clearTimeout(window.__toastTimer);
+    window.__toastTimer = window.setTimeout(() => setToast(null), 2500);
+  }
 
   async function unlock() {
     setErr('');
