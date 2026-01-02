@@ -533,6 +533,31 @@ export default function App() {
           <button className={`tab ${active === 'settings' ? 'active' : ''}`} data-testid="tab-settings" onClick={() => setActive('settings')}>Settings</button>
         </div>
 
+      {toast ? (
+        <div
+          className="glass card"
+          data-testid="success-toast"
+          style={{
+            position: 'fixed',
+            right: 18,
+            bottom: 18,
+            width: 360,
+            borderColor: toast.kind === 'error' ? 'rgba(255,86,105,0.35)' : 'rgba(64,221,153,0.30)',
+            background: toast.kind === 'error' ? 'rgba(255,86,105,0.12)' : 'rgba(64,221,153,0.10)',
+            zIndex: 50,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <div>
+              <div style={{ fontWeight: 700 }} data-testid="success-toast-title">{toast.kind === 'error' ? 'Error' : 'Saved'}</div>
+              <div className="muted" style={{ fontSize: 13 }} data-testid="success-toast-message">{toast.message}</div>
+            </div>
+            <button className="btn" data-testid="success-toast-close" onClick={() => setToast(null)}>Close</button>
+          </div>
+        </div>
+      ) : null}
+
+
         {err ? (
           <div className="glass card" data-testid="error-banner" style={{ marginTop: 14, borderColor: 'rgba(255,86,105,0.35)', background: 'rgba(255,86,105,0.10)' }}>
             <strong>Issue:</strong> {err}
