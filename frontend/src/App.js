@@ -152,6 +152,7 @@ export default function App() {
   const [resetConfirm, setResetConfirm] = useState('');
   const [resetBusy, setResetBusy] = useState(false);
 
+  // eslint-disable-next-line no-unused-vars
   const [toast, setToast] = useState(null); // { message: string, kind: 'success' | 'info' | 'error' }
 
   const monthKey = useMemo(() => monthKeyFromIso(isoToday()), []);
